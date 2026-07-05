@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>디자인하는삼촌 — 고시ONE · 인건비서</title>
+<meta name="description" content="고시원 관리는 고시ONE, 인건비 계산은 인건비서. 사장님의 관리 업무를 앱 하나로 끝내는 디자인하는삼촌의 관리 앱.">
+<meta name="theme-color" content="#0A0E1A">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#0A0E1A;
+  --bg2:#0E1424;
+  --line:rgba(255,255,255,.1);
+  --line-soft:rgba(255,255,255,.06);
+  --txt:#F2F5FB;
+  --dim:#8B98B5;
+  --cyan:#2EE6C8;
+  --green:#3EE07F;
+  --naver:#03C75A;
+  --blue:#3B82F6;
+  --blue-soft:rgba(59,130,246,.12);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+  background:var(--bg);color:var(--txt);
+  font-size:17px;line-height:1.7;word-break:keep-all;
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+/* ===== fullpage scroller ===== */
+#pager{
+  height:100dvh;overflow-y:scroll;overflow-x:hidden;
+  scroll-behavior:auto;
+  overscroll-behavior-y:none;
+}
+.page{
+  height:100dvh;
+  position:relative;display:flex;flex-direction:column;justify-content:center;
+  padding:72px 24px 72px;overflow:hidden;
+  will-change:opacity;
+  transition:opacity .5s ease;
+}
+.inner{max-width:560px;margin:0 auto;width:100%;position:relative;z-index:2}
+
+/* ghost typography (parallax layer) */
+.ghost{
+  position:absolute;left:50%;top:50%;z-index:0;pointer-events:none;
+  font-weight:800;font-size:34vw;line-height:1;letter-spacing:-.04em;
+  color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.06);
+  white-space:nowrap;will-change:transform;user-select:none;
+  transform:translate(-50%,-50%);
+}
+.glow{
+  position:absolute;z-index:0;border-radius:50%;filter:blur(80px);
+  pointer-events:none;will-change:transform;opacity:.4;
+}
+
+/* progress dots */
+.dots{
+  position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:80;
+  display:flex;flex-direction:column;gap:10px;
+  align-items:flex-end;
+}
+.dots button{
+  width:6px;height:6px;border-radius:50%;border:none;background:rgba(255,255,255,.22);
+  cursor:pointer;transition:all .4s var(--ease);padding:0;
+  position:relative;display:flex;align-items:center;justify-content:flex-end;
+}
+.dots button.on{height:22px;border-radius:99px;background:var(--txt)}
+.dot-label{
+  position:absolute;right:14px;
+  font-size:10px;font-weight:700;letter-spacing:.06em;
+  white-space:nowrap;pointer-events:none;
+  color:var(--txt);
+  opacity:0;transform:translateX(4px);
+  transition:none;
+}
+/* When active: slide in immediately, then auto-fade after delay via animation */
+.dots button.on .dot-label{
+  animation:labelshow 2.4s var(--ease) forwards;
+}
+@keyframes labelshow{
+  0%  {opacity:0;transform:translateX(6px)}
+  12% {opacity:1;transform:none}
+  68% {opacity:1;transform:none}
+  100%{opacity:0;transform:translateX(-2px)}
+}
+
+/* header */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:90;
+  background:linear-gradient(180deg,rgba(10,14,26,.85),transparent);
+  padding-top:env(safe-area-inset-top);
+}
+.hd{display:flex;align-items:center;justify-content:space-between;height:62px;max-width:560px;margin:0 auto;padding:0 24px}
+.logo{font-weight:800;font-size:16px;letter-spacing:-.02em}
+.logo-img{display:flex;align-items:center}
+.logo em{font-style:normal;color:var(--dim);font-weight:600;font-size:12px;margin-left:8px;letter-spacing:.04em}
+.hd-btn{
+  font-size:13.5px;font-weight:800;padding:9px 16px;border-radius:999px;
+  background:var(--naver);color:#fff;transition:transform .2s var(--ease);
+}
+.hd-btn:active{transform:scale(.94)}
+
+/* type system */
+.kicker{
+  font-size:12.5px;font-weight:800;letter-spacing:.14em;color:var(--dim);
+  margin-bottom:18px;display:flex;align-items:center;gap:12px;
+}
+.kicker::after{content:"";height:1px;flex:1;background:var(--line-soft)}
+.kicker.c{color:var(--cyan)}
+.kicker.g{color:var(--green)}
+h1,h2{font-weight:800;letter-spacing:-.035em}
+h1{font-size:clamp(38px,10.5vw,52px);line-height:1.18;margin-bottom:20px}
+h2{font-size:clamp(30px,8.4vw,42px);line-height:1.24;margin-bottom:16px}
+.grad-c{background:linear-gradient(90deg,var(--cyan),#8DF4E4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-g{background:linear-gradient(90deg,var(--green),#9CF7C0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:16.5px;color:var(--dim);margin-bottom:34px;max-width:30em}
+.lead b{color:var(--txt);font-weight:700}
+
+/* text rows (icon-free feature list) */
+.rows{border-top:1px solid var(--line);margin-bottom:34px}
+.row{
+  display:flex;gap:18px;align-items:baseline;
+  padding:17px 2px;border-bottom:1px solid var(--line-soft);
+}
+.row .no{
+  flex:none;font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--dim);
+  width:26px;
+}
+.row.c .no{color:var(--cyan)}
+.row.g .no{color:var(--green)}
+.row h3{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.row p{font-size:13.5px;color:var(--dim);margin-top:2px;line-height:1.55}
+
+/* pain list — strike style */
+.pains{border-top:1px solid var(--line);margin-bottom:8px}
+.pains .row h3{color:#C7D1E6}
+.pains .row .no{color:#5A6580}
+.strike{position:relative;display:inline-block}
+.strike::after{
+  content:"";position:absolute;left:0;right:0;top:55%;height:2px;background:var(--cyan);
+  transform:scaleX(0);transform-origin:left;transition:transform .8s var(--ease) .3s;
+}
+.page.active .strike::after{transform:scaleX(1)}
+
+/* CTA */
+.cta{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;min-height:60px;border-radius:16px;font-size:16.5px;font-weight:800;
+  padding:0 22px;letter-spacing:-.01em;
+  transition:transform .2s var(--ease),box-shadow .3s var(--ease);
+}
+.cta:active{transform:scale(.97)}
+.cta span:last-child{font-weight:400;font-size:20px}
+.cta-c{background:linear-gradient(135deg,var(--cyan),#0FB89C);color:#07131F;box-shadow:0 12px 34px rgba(46,230,200,.25)}
+.cta-g{background:linear-gradient(135deg,var(--green),#17B85C);color:#07200F;box-shadow:0 12px 34px rgba(62,224,127,.25)}
+.cta-n{background:var(--naver);color:#fff;box-shadow:0 12px 34px rgba(3,199,90,.3)}
+
+/* swipe gallery */
+.gal-label{
+  font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--dim);
+  margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;
+}
+.gal-label i{font-style:normal;font-weight:600;letter-spacing:0;opacity:.7}
+.gallery{
+  display:flex;gap:12px;overflow-x:auto;
+  padding:2px 24px 8px;margin:0 -24px 26px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  cursor:grab;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);
+}
+.gallery.dragging{cursor:grabbing;scroll-behavior:auto}
+.gallery::-webkit-scrollbar{display:none}
+
+/* ===== infographic cards (replace product images) ===== */
+.card{
+  flex:none;width:80%;max-width:330px;min-height:380px;
+  border-radius:20px;border:1px solid var(--line);
+  background:linear-gradient(180deg,#131B32,#0C1222);
+  padding:22px 20px;display:flex;flex-direction:column;
+  box-shadow:0 16px 44px rgba(0,0,0,.4);overflow:hidden;
+}
+.card-top{
+  font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--dim);
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.card-top::after{content:"";height:1px;flex:1;background:var(--line-soft)}
+.card.c .card-top{color:var(--cyan)}
+.card.g .card-top{color:var(--green)}
+
+/* mock app UI */
+.mock-date{font-size:12px;font-weight:700;color:var(--dim);margin-bottom:10px}
+.mock-stats{display:flex;gap:8px;margin-bottom:14px}
+.ms{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--line-soft);border-radius:12px;padding:10px 6px;text-align:center}
+.ms b{display:block;font-size:19px;font-weight:800;letter-spacing:-.02em}
+.ms span{font-size:10.5px;color:var(--dim);font-weight:700}
+.card.c .ms b{color:var(--cyan)}
+.card.g .ms b{color:var(--green)}
+.room-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.room{
+  aspect-ratio:1/1;border-radius:8px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-size:9px;font-weight:700;
+  background:rgba(46,230,200,.12);color:var(--cyan);border:1px solid rgba(46,230,200,.18);
+}
+.room b{font-size:11px;font-weight:800}
+.room.empty{background:transparent;color:#5A6580;border:1px dashed rgba(255,255,255,.15)}
+.room.late{background:rgba(255,120,80,.12);color:#FF9270;border-color:rgba(255,120,80,.2)}
+.mock-sum{
+  margin-top:auto;background:rgba(255,255,255,.04);border:1px solid var(--line-soft);
+  border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline;
+}
+.mock-sum span{font-size:11px;color:var(--dim);font-weight:700}
+.mock-sum b{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.pay-line{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 2px;border-bottom:1px solid var(--line-soft);
+}
+.pay-line .who{font-size:13px;font-weight:800}
+.pay-line .role{font-size:10.5px;color:var(--dim);font-weight:600;display:block}
+.pay-line .amt{font-size:14px;font-weight:800;color:var(--green)}
+
+/* big number card */
+.card.center{align-items:center;text-align:center;justify-content:center;gap:2px}
+.bn-label{font-size:14px;font-weight:700;color:var(--dim)}
+.bn{font-size:52px;font-weight:800;letter-spacing:-.04em;line-height:1.1}
+.card.c .bn{color:var(--cyan)}
+.card.g .bn{color:var(--green)}
+.bn-sub{font-size:14px;font-weight:700;color:var(--txt)}
+.bn-div{width:44px;height:1px;background:var(--line);margin:20px 0}
+
+/* price card */
+.price-old{font-size:14px;color:var(--dim);text-decoration:line-through;margin-bottom:2px}
+.price-new{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:4px}
+.price-new em{
+  font-style:normal;font-size:12px;font-weight:800;vertical-align:middle;margin-left:8px;
+  padding:4px 9px;border-radius:999px;background:rgba(46,230,200,.14);color:var(--cyan);
+}
+.price-note{font-size:11.5px;color:var(--dim);margin-bottom:14px}
+.check-rows{border-top:1px solid var(--line);margin-top:auto}
+.check-rows div{
+  display:flex;gap:12px;align-items:center;padding:11px 2px;
+  border-bottom:1px solid var(--line-soft);font-size:13.5px;font-weight:700;
+}
+.check-rows i{font-style:normal;font-size:11px;font-weight:800;color:var(--dim);letter-spacing:.06em}
+.card.c .check-rows i{color:var(--cyan)}
+.card.g .check-rows i{color:var(--green)}
+
+/* pictogram + text rows */
+.picto-rows{display:flex;flex-direction:column;flex:1;justify-content:space-evenly}
+.picto{display:flex;gap:16px;align-items:center}
+.picto svg{flex:none;width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.card.c .picto svg{color:var(--cyan)}
+.card.g .picto svg{color:var(--green)}
+.picto h4{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.picto p{font-size:12px;color:var(--dim);line-height:1.5;margin-top:1px}
+
+/* before/after rows */
+.vs-rows{display:flex;flex-direction:column;flex:1;justify-content:space-evenly}
+.vs{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.vs .b4{font-size:13px;color:#6A7590;text-decoration:line-through;display:block}
+.vs .af{font-size:15px;font-weight:800;display:flex;align-items:baseline;gap:8px}
+.vs .af i{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.08em}
+.card.c .vs .af i{color:var(--cyan)}
+.card.g .vs .af i{color:var(--green)}
+
+/* step card */
+.steps{display:flex;flex-direction:column;flex:1;justify-content:space-evenly}
+.stp{display:flex;gap:14px;align-items:flex-start;position:relative;padding-left:2px}
+.stp .sn{
+  flex:none;width:30px;height:30px;border-radius:10px;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);
+}
+.card.c .stp .sn{color:var(--cyan);border-color:rgba(46,230,200,.25)}
+.card.g .stp .sn{color:var(--green);border-color:rgba(62,224,127,.25)}
+.stp h4{font-size:14.5px;font-weight:800}
+.stp p{font-size:11.5px;color:var(--dim);line-height:1.5}
+
+/* hero mini index */
+.idx{
+  display:flex;flex-direction:column;border-top:1px solid var(--line);
+}
+.idx a{
+  display:flex;align-items:baseline;gap:16px;padding:18px 2px;
+  border-bottom:1px solid var(--line-soft);
+  transition:padding-left .3s var(--ease);
+}
+.idx a:active{padding-left:10px}
+.idx .no{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--dim)}
+.idx .t{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.idx .d{margin-left:auto;font-size:12.5px;color:var(--dim);text-align:right}
+.idx a:first-child .no,.idx a:first-child:active .t{color:var(--cyan)}
+.idx a:last-child .no,.idx a:last-child:active .t{color:var(--green)}
+
+/* letter */
+.letter{border-left:2px solid var(--line);padding-left:20px;margin-bottom:34px}
+.letter p{font-size:15.5px;color:#B9C4DB;margin-bottom:14px}
+.letter .sign{color:var(--txt);font-weight:800;margin:0}
+
+/* faq */
+details{border-bottom:1px solid var(--line-soft);overflow:hidden}
+details:first-of-type{border-top:1px solid var(--line)}
+summary{
+  cursor:pointer;padding:20px 2px;font-size:15.5px;font-weight:700;list-style:none;
+  display:flex;justify-content:space-between;gap:14px;align-items:center;
+  user-select:none;
+}
+summary::-webkit-details-marker{display:none}
+.faq-icon{
+  flex:none;width:22px;height:22px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.faq-icon::before,.faq-icon::after{
+  content:"";position:absolute;background:var(--dim);border-radius:2px;
+  transition:transform .45s var(--ease),opacity .35s ease;
+}
+.faq-icon::before{width:13px;height:1.5px}
+.faq-icon::after{width:1.5px;height:13px}
+details[open] .faq-icon::after{transform:rotate(90deg);opacity:0}
+details[open] .faq-icon::before{transform:rotate(180deg)}
+.ans-wrap{
+  display:grid;grid-template-rows:0fr;
+  transition:grid-template-rows .45s var(--ease);
+}
+details[open] .ans-wrap{grid-template-rows:1fr}
+.ans-inner{overflow:hidden}
+.ans{padding:0 2px 20px;font-size:14px;color:var(--dim)}
+
+/* footer text */
+.foot{font-size:12.5px;color:var(--dim);margin-top:30px;line-height:1.8}
+.foot b{color:var(--txt);font-size:14px}
+
+/* enter animations per page — replay on every visit */
+.fx{
+  opacity:0;transform:translateY(38px);filter:blur(6px);
+  transition:opacity .5s ease,transform .5s ease,filter .5s ease;
+}
+.page.active .fx{
+  opacity:1;transform:none;filter:blur(0);
+  transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease);
+}
+.page.active .fx.f2{transition-delay:.12s}
+.page.active .fx.f3{transition-delay:.24s}
+.page.active .fx.f4{transition-delay:.36s}
+.page.active .fx.f5{transition-delay:.48s}
+/* exit upward: contents dissolve up, reverse stagger */
+.page.exit-up .fx{
+  opacity:0;transform:translateY(-30px);filter:blur(4px);
+  transition:opacity .45s ease,transform .45s ease,filter .45s ease;transition-delay:.09s;
+}
+.page.exit-up .fx.f2{transition-delay:.06s}
+.page.exit-up .fx.f3{transition-delay:.03s}
+.page.exit-up .fx.f4,.page.exit-up .fx.f5{transition-delay:0s}
+
+/* word-mask headline reveal */
+.w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.1em;margin-bottom:-.1em}
+.w i{
+  display:inline-block;font-style:normal;
+  transform:translateY(118%);transition:transform .9s var(--ease);
+}
+.page.active .w i{transform:none}
+
+/* feature rows rise one by one */
+.rows .row{opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.page.active .rows .row{opacity:1;transform:none}
+.page.active .rows .row:nth-child(1){transition-delay:.45s}
+.page.active .rows .row:nth-child(2){transition-delay:.56s}
+.page.active .rows .row:nth-child(3){transition-delay:.67s}
+.page.active .rows .row:nth-child(4){transition-delay:.78s}
+.page.active .rows .row:nth-child(5){transition-delay:.89s}
+
+/* gallery cards rise one by one */
+.gallery .card{opacity:0;transform:translateY(26px) scale(.97);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.page.active .gallery .card{opacity:1;transform:none}
+.page.active .gallery .card:nth-child(1){transition-delay:.4s}
+.page.active .gallery .card:nth-child(2){transition-delay:.53s}
+.page.active .gallery .card:nth-child(3){transition-delay:.66s}
+.page.active .gallery .card:nth-child(n+4){transition-delay:.79s}
+
+/* micro-interactions */
+.idx a .no{transition:transform .3s var(--ease)}
+.idx a:active .no{transform:translateX(4px)}
+.cta span:last-child{transition:transform .3s var(--ease)}
+.cta:active span:last-child{transform:translateX(5px)}
+
+/* depth transition layer */
+.inner{will-change:transform,opacity}
+
+/* film grain */
+body::after{
+  content:"";position:fixed;inset:0;z-index:98;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* scroll hint */
+.hint{
+  position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;
+  font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--dim);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.hint::after{
+  content:"";width:1px;height:30px;
+  background:linear-gradient(180deg,var(--dim),transparent);
+  animation:drip 1.8s var(--ease) infinite;
+}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ===== signage section specific ===== */
+.kicker.b{color:var(--blue)}
+.grad-b{background:linear-gradient(90deg,var(--blue),#93C5FD);-webkit-background-clip:text;background-clip:text;color:transparent}
+.flow{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+.flow-step{display:flex;align-items:flex-start;gap:16px;padding:16px 2px;border-bottom:1px solid var(--line-soft);position:relative}
+.flow-step::before{display:none}
+.fn{
+  flex:none;width:32px;height:32px;border-radius:10px;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;margin-top:2px;
+  background:var(--blue-soft);color:var(--blue);border:1px solid rgba(59,130,246,.2);
+}
+.flow-step h3{font-size:16.5px;font-weight:800;letter-spacing:-.01em}
+.flow-step p{font-size:13px;color:var(--dim);margin-top:2px;line-height:1.5}
+.sig-values{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+.sv{
+  background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.14);
+  border-radius:16px;padding:16px 14px;
+}
+.sv h4{font-size:15px;font-weight:800;margin-bottom:4px;letter-spacing:-.01em}
+.sv p{font-size:12.5px;color:var(--dim);line-height:1.5}
+.cta-b{background:var(--blue);color:#fff;box-shadow:0 12px 34px rgba(59,130,246,.28)}
+@media(min-width:700px){
+  .sig-values{gap:16px}
+  .sv{padding:20px 18px}
+  .sv h4{font-size:17px}
+  .sv p{font-size:14px}
+  .flow-step h3{font-size:19px}
+  .flow-step p{font-size:15px}
+  .fn{width:38px;height:38px;font-size:13px;border-radius:12px}
+}
+
+/* ===== large screens (tablet) ===== */
+@media(min-width:700px){
+  .inner{max-width:780px}
+  .page{padding:88px 40px 88px}
+  h1{font-size:clamp(52px,7vw,72px)}
+  h2{font-size:clamp(40px,5.6vw,56px)}
+  .lead{font-size:19px;max-width:34em}
+  .kicker{font-size:14px}
+  .row{padding:22px 2px}
+  .row h3{font-size:20px}
+  .row p{font-size:15px}
+  .idx a{padding:24px 2px}
+  .idx .t{font-size:23px}
+  .gal-label{font-size:13px}
+  .gallery{gap:16px;padding-left:40px;padding-right:40px;margin-left:-40px;margin-right:-40px}
+  .card{max-width:420px;width:52%;min-height:520px;padding:30px 28px}
+  .card-top{font-size:12.5px;margin-bottom:22px}
+  .picto{padding:19px 2px}
+  .picto svg{width:34px;height:34px}
+  .picto h4{font-size:18px}
+  .picto p{font-size:14px}
+  .vs .b4{font-size:15px}
+  .vs .af{font-size:18px}
+  .bn{font-size:64px}
+  .bn-label{font-size:16px}
+  .bn-sub{font-size:16px}
+  .price-new{font-size:46px}
+  .check-rows div{font-size:16px;padding:14px 2px}
+  .stp h4{font-size:17px}
+  .stp p{font-size:13.5px}
+  .cta{min-height:68px;font-size:18px;border-radius:18px}
+  .letter p{font-size:17px}
+  summary{font-size:17px;padding:19px 2px}
+  .ans{font-size:15px}
+  .ghost{font-size:26vw}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .fx{opacity:1!important;transform:none!important;filter:none!important}
+  .rows .row,.gallery .card{opacity:1!important;transform:none!important}
+  .w i{transform:none!important}
+  #pager{scroll-behavior:auto}
+  .ghost,.glow{transform:translate(-50%,-50%)!important}
+}
+
+/* ===== portfolio section ===== */
+.port-thumb-wrap{
+  overflow:hidden;margin:0 -24px;padding:0 0 16px;
+}
+.port-thumbs{
+  display:flex;gap:10px;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  padding:4px 24px 8px;
+  cursor:grab;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);
+}
+.port-thumbs::-webkit-scrollbar{display:none}
+.pt{
+  flex:none;width:148px;height:168px;border-radius:18px;
+  border:1px solid rgba(255,255,255,.08);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:12px 11px;text-decoration:none;
+  transition:border-color .25s,transform .2s;
+  position:relative;overflow:hidden;
+  background:#111;
+}
+.pt-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:top;
+  transition:transform .4s ease;
+}
+.pt:hover .pt-img{transform:scale(1.05)}
+.pt::before{
+  content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.78) 100%);
+}
+.pt-cat,.pt-name,.pt-desc{position:relative;z-index:2}
+.pt:active{transform:scale(.97)}
+.pt-cat{
+  display:block;font-size:9.5px;font-weight:800;letter-spacing:.12em;
+  color:rgba(255,255,255,.55);margin-bottom:3px;position:relative;z-index:1;
+}
+.pt-name{
+  display:block;font-size:15px;font-weight:800;color:#fff;
+  margin-bottom:2px;position:relative;z-index:1;letter-spacing:-.01em;
+}
+.pt-desc{
+  display:block;font-size:10.5px;color:rgba(255,255,255,.55);
+  position:relative;z-index:1;line-height:1.4;
+}
+.pt-more{
+  background:rgba(192,132,252,.1);
+  border:1px solid rgba(192,132,252,.25) !important;
+  align-items:center;text-align:center;
+}
+.pt-more .pt-cat{color:#C084FC}
+.pt-more .pt-name{color:#fff;font-size:14px}
+.pt-more .pt-desc{color:#C084FC}
+@media(min-width:700px){
+  .pt{width:190px;height:210px}
+}
+.port-card{
+  background:var(--card2);border:1px solid var(--line);border-radius:18px;
+  padding:20px 20px;display:flex;gap:16px;align-items:flex-start;
+  text-decoration:none;color:inherit;
+  transition:background .25s ease,border-color .25s ease;
+  position:relative;overflow:hidden;
+}
+.port-card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  border-radius:3px 0 0 3px;
+}
+.port-card.c1::before{background:var(--cyan)}
+.port-card.c2::before{background:var(--green)}
+.port-card.c3::before{background:#F5A97F}
+.port-card.c4::before{background:var(--blue)}
+.port-card.c5::before{background:#C084FC}
+.port-card.c6::before{background:#FB7185}
+.port-card:active{background:rgba(255,255,255,.05)}
+.port-num{
+  flex:none;width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;letter-spacing:.04em;background:rgba(255,255,255,.05);
+}
+.port-card.c1 .port-num{color:var(--cyan)}
+.port-card.c2 .port-num{color:var(--green)}
+.port-card.c3 .port-num{color:#F5A97F}
+.port-card.c4 .port-num{color:var(--blue)}
+.port-card.c5 .port-num{color:#C084FC}
+.port-card.c6 .port-num{color:#FB7185}
+.port-info{flex:1;min-width:0}
+.port-cat{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--dim);margin-bottom:3px}
+.port-title{font-size:16px;font-weight:800;letter-spacing:-.01em;margin-bottom:3px}
+.port-desc{font-size:12.5px;color:var(--dim);line-height:1.5}
+.port-arr{flex:none;font-size:18px;color:var(--dim);margin-top:7px;transition:transform .25s ease}
+.port-card:hover .port-arr,.port-card:active .port-arr{transform:translateX(3px)}
+.port-logo{margin-bottom:26px}
+.port-logo img{height:32px;width:auto;display:block}
+@media(min-width:700px){
+  .port-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .port-card{flex-direction:column;gap:12px}
+  .port-arr{display:none}
+}
+
+
+
+/* app logo before page title */
+.app-logo{
+  display:block;
+  width:52px;height:52px;border-radius:16px;
+  object-fit:cover;margin-bottom:14px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+}
+@media(min-width:700px){
+  .app-logo{width:64px;height:64px;border-radius:18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <a class="logo" href="#p0" data-go="0">디자인하는삼촌<em>THEDESIGNUNCLE</em></a>
+    <a class="hd-btn" href="https://m.smartstore.naver.com/thedesignuncle" target="_blank" rel="noopener">네이버 스마트스토어</a>
+  </div>
+</header>
+
+<nav class="dots" id="dots" aria-label="페이지 이동"></nav>
+
+<main id="pager">
+
+  <!-- P0 HERO: 브랜드 -->
+  <section class="page" id="p0">
+    <div class="ghost" data-px="-0.35" style="top:38%">UNCLE</div>
+    <div class="glow" data-px="0.25" style="width:340px;height:340px;background:var(--cyan);top:-140px;right:-140px"></div>
+    <div class="glow" data-px="-0.2" style="width:300px;height:300px;background:var(--green);bottom:-160px;left:-150px;opacity:.28"></div>
+    <div class="inner">
+      <p class="kicker fx">DESIGN & DIGITAL SOLUTION STUDIO</p>
+      <h1 class="fx f2">운영은 더 쉽게,<br>성장은 더 크게.<br><span class="grad-c">디자인하는삼촌이</span><br><span class="grad-g">함께합니다.</span></h1>
+      <p class="lead fx f3">디자인을 넘어, <b>비즈니스의 성장을 함께합니다.</b><br>브랜딩부터 관리 프로그램, 디지털 사이니지까지 한 곳에서.</p>
+      <div class="idx fx f4">
+        <a href="#p2" data-go="2">
+          <span class="no">01</span><span class="t">디자인</span><span class="d">브랜드 · 매장 · 온라인</span>
+        </a>
+        <a href="#p3" data-go="4">
+          <span class="no" style="color:var(--cyan)">02</span><span class="t">소프트웨어</span><span class="d">고시ONE · 인건비서 외</span>
+        </a>
+        <a href="#p10" data-go="11">
+          <span class="no" style="color:var(--blue)">03</span><span class="t">사이니지</span><span class="d">디지털 매장 관리</span>
+        </a>
+        <a href="#p2b" data-go="3">
+          <span class="no" style="color:#C084FC">04</span><span class="t">포트폴리오</span><span class="d">작업물 갤러리</span>
+        </a>
+      </div>
+    </div>
+    <div class="hint">SCROLL</div>
+  </section>
+
+  <!-- P1 브랜드 선언 -->
+  <section class="page" id="p1">
+    <div class="ghost" data-px="-0.3" style="font-size:30vw">BEYOND</div>
+    <div class="inner">
+      <p class="kicker fx">WHO WE ARE</p>
+      <h2 class="fx f2">디자인을 넘어,<br><span class="grad-c">매장을 움직이는</span><br>솔루션을 만듭니다.</h2>
+      <p class="lead fx f3">예쁜 디자인만 만드는 회사가 아닙니다. 브랜드 디자인부터 인쇄물, 홈페이지, 모바일 앱, 관리 프로그램, 디지털 사이니지까지 — 비즈니스에 필요한 모든 것을 <b>직접 기획하고 제작</b>합니다.</p>
+      <div class="rows fx f4">
+        <div class="row"><span class="no">＋</span><div><h3>디자인 + 개발을 한 곳에서</h3><p>따로 맡길 필요 없이, 기획부터 운영까지 원스톱</p></div></div>
+        <div class="row"><span class="no">＋</span><div><h3>반복 업무는 프로그램이</h3><p>복잡한 관리는 자동화로 해결합니다</p></div></div>
+        <div class="row"><span class="no">＋</span><div><h3>실제로 쓰는 사람 중심</h3><p>사장님이 매일 쓰게 되는 도구를 고집합니다</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- P2 디자인 서비스 -->
+  <section class="page" id="p2">
+    <div class="ghost" data-px="-0.35" style="font-size:28vw">DESIGN</div>
+    <div class="glow" data-px="0.25" style="width:320px;height:320px;background:var(--cyan);top:-140px;left:-140px;opacity:.22"></div>
+    <div class="inner">
+      <p class="kicker fx">SERVICE 01 — DESIGN</p>
+      <h2 class="fx f2">브랜드의 첫인상부터<br><span class="grad-c">매장의 구석구석까지.</span></h2>
+      <p class="lead fx f3">필요한 디자인은 전부 만듭니다.</p>
+      <div class="rows fx f4">
+        <div class="row c"><span class="no">01</span><div><h3>Brand Design</h3><p>로고(BI) · 브랜드 아이덴티티 · 브랜드 가이드</p></div></div>
+        <div class="row c"><span class="no">02</span><div><h3>Graphic Design</h3><p>메뉴판 · 전단지 · 배너 · 현수막 · 명함 · 포스터 · POP</p></div></div>
+        <div class="row c"><span class="no">03</span><div><h3>Store Design</h3><p>간판 · 실사출력 · 시트지 · 원산지 표시판 · 안내판</p></div></div>
+        <div class="row c"><span class="no">04</span><div><h3>Digital Design</h3><p>상세페이지 · SNS 콘텐츠 · 광고 배너 · 쇼핑몰 · 썸네일</p></div></div>
+        <div class="row c"><span class="no">05</span><div><h3>UI / UX Design</h3><p>모바일 앱 · 관리자 · 대시보드 · 키오스크 · 터치 UI</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- P2b 포트폴리오 — 디자인 작업물 -->
+  <section class="page" id="p2b">
+    <div class="ghost" data-px="-0.3" style="font-size:22vw;top:32%">WORK</div>
+    <div class="glow" data-px="0.22" style="width:300px;height:300px;background:#C084FC;top:-140px;right:-140px;opacity:.15"></div>
+    <div class="inner">
+      <p class="kicker fx" style="color:#C084FC">PORTFOLIO — 직접 확인해 보세요</p>
+      <h2 class="fx f2" data-no-split style="margin-bottom:8px">브랜드부터 매장까지,<br><span style="background:linear-gradient(90deg,#C084FC,#E879F9);-webkit-background-clip:text;background-clip:text;color:transparent">만든 것들이 증명합니다.</span></h2>
+      <p class="lead fx f3" style="margin-bottom:20px">간판 · 로고 · 브랜드 · 그래픽 · UI/UX<br>실제 작업물을 갤러리에서 확인하세요.</p>
+
+      <!-- 가로 스크롤 썸네일 갤러리 -->
+      <div class="port-thumb-wrap fx f4">
+        <div class="port-thumbs" id="portThumbs">
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EA%B2%8C%EC%9E%A5/b708e92f-7ce2-477e-b328-afef9410ff5a.png" alt="게장" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">게장</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EA%B3%A0%EC%9A%94%EC%8B%9D%ED%83%81/6e26f6ef-abe6-45af-bcab-dcda44fc362c.png" alt="고요식탁" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">고요식탁</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EA%B3%B0%ED%83%95/91463624-a6a6-4d7d-82e9-d55a5847974b.png" alt="곰탕" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">곰탕</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EA%B9%80%EB%B0%A5%ED%95%9C%EC%A4%84/ff562327-2a7c-4587-b83e-50ec1458a8f4.png" alt="김밥한줄" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">김밥한줄</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EA%BC%AC%EC%B9%98%EC%83%81/073e37eb-bdac-486d-8e57-0efdee83aa7b.png" alt="꼬치상" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">꼬치상</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EA%BD%88%EB%B0%B0%EA%B8%B0/013ba79c-2f17-4fde-ba4d-39e36f63278a.png" alt="꽈배기" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">꽈배기</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%83%89%EB%A9%B4%20%EC%A0%84%EB%AC%B8%EC%A0%90/e92759b1-1bbf-4aaf-8300-a15ee5b92b52.png" alt="냉면 전문점" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">냉면 전문점</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%85%B8%ED%8F%AC%20%ED%95%9C%EC%9A%B0/b945bed6-3803-44e3-827d-b7ef49e8e7fa.png" alt="노포 한우" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">노포 한우</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%89%B4%ED%8A%B8%EB%A1%9C%20%EB%96%A1%EB%B3%B6%EC%9D%B4/8e474052-61a7-4bb7-beef-4998676d9d00.png" alt="뉴트로 떡볶이" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">뉴트로 떡볶이</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%8B%AD%ED%95%9C%EB%A7%88%EB%A6%AC/4876792a-30d1-4ca7-92d5-e83e50e18edb.png" alt="닭한마리" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">닭한마리</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%91%A0%EC%B9%98%ED%82%A8/b14643c8-b7e5-4d34-b6a3-18da7a7a704f.png" alt="둠치킨" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">둠치킨</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%93%9C%EB%A6%BD%EC%95%A4%EA%B7%B8%EB%9D%BC%EC%9A%B4%EB%93%9C/0eb63354-10c3-43d7-aa1f-34605d2e4ecc.png" alt="드립앤그라운드" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">드립앤그라운드</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%A0%88%EB%93%9C%ED%94%84%EB%A1%9C%EA%B7%B8/ae8c7ede-2b96-4d74-a04f-30e07d2ddc22.png" alt="레드프로그" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">레드프로그</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%A1%A4%EB%A6%AC%EC%BB%A4%ED%94%BC/1b03b8a0-71fb-4a69-984b-fb6a4f9ebf49.png" alt="롤리커피" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">롤리커피</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%A1%A4%EB%B2%84%EB%8B%88/16287d3e-7dcc-4dd2-9d44-bc59d9bd72d4.png" alt="롤버니" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">롤버니</span>
+          </a>
+          <a class="pt" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <img class="pt-img" src="https://portfolio.thedesignuncle.com/html-gallery/%EB%A7%88%EC%B9%B4%EB%A1%B1/2f1de8ca-dd11-4ba4-b633-4dd5408a8ccf.png" alt="마카롱" loading="lazy" onerror="this.style.display='none'">
+            <span class="pt-cat">Brand</span>
+            <span class="pt-name">마카롱</span>
+          </a>
+          <a class="pt pt-more" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener">
+            <span class="pt-cat">MORE</span>
+            <span class="pt-name">전체 보기</span>
+            <span class="pt-desc">포트폴리오 갤러리 →</span>
+          </a>
+        </div>
+      </div>
+
+      <a class="cta fx f5" href="https://portfolio.thedesignuncle.com/" target="_blank" rel="noopener"
+         style="background:rgba(192,132,252,.12);border:1px solid rgba(192,132,252,.28);color:#C084FC;font-size:15px;min-height:52px;margin-top:16px">
+        <span>포트폴리오 갤러리 전체 보기</span><span>→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- P3 소프트웨어 라인업 -->
+  <section class="page" id="p3">
+    <div class="ghost" data-px="-0.35" style="font-size:24vw">SOFTWARE</div>
+    <div class="glow" data-px="0.25" style="width:320px;height:320px;background:var(--green);bottom:-160px;right:-140px;opacity:.22"></div>
+    <div class="inner">
+      <p class="kicker fx">SERVICE 02 — SOFTWARE</p>
+      <h2 class="fx f2">프로그램도<br><span class="grad-g">직접 만듭니다.</span></h2>
+      <p class="lead fx f3">현장에서 실제로 쓰는 프로그램을 직접 기획하고 개발합니다.</p>
+      <div class="idx fx f4">
+        <a href="#p4" data-go="5">
+          <span class="no" style="color:var(--cyan)">01</span><span class="t">고시ONE</span><span class="d">고시원 통합 관리 · 판매 중</span>
+        </a>
+        <a href="#p6" data-go="7">
+          <span class="no" style="color:var(--green)">02</span><span class="t">인건비서</span><span class="d">근무 · 급여 관리 · 판매 중</span>
+        </a>
+        <a href="#p8" data-go="9">
+          <span class="no" style="color:#F5A97F">03</span><span class="t">지금 시세는</span><span class="d">식자재 시세 관리 서비스</span>
+        </a>
+        <a href="#p9" data-go="10">
+          <span class="no" style="color:var(--blue)">04</span><span class="t">사이니지OS</span><span class="d">디지털 사이니지 플랫폼</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- P4 고시ONE intro -->
+  <section class="page" id="p4">
+    <div class="ghost" data-px="-0.4" style="-webkit-text-stroke:1px rgba(46,230,200,.1)">ONE</div>
+    <div class="glow" data-px="0.3" style="width:320px;height:320px;background:var(--cyan);top:-120px;left:-140px;opacity:.3"></div>
+    <div class="inner">
+      <p class="kicker c fx">SOFTWARE 01 — 고시원 사장님께 · 판매 중</p>
+      <h2 class="fx f2">고시ONE<br><span class="grad-c">고시원 운영을 위한<br>통합 관리 솔루션.</span></h2>
+      <p class="lead fx f3">종이 장부의 모든 것이 화면 하나로. <b>배우지 않아도 바로 쓰는</b> 고시원 전용 관리 앱.</p>
+      <div class="rows fx f4">
+        <div class="row c"><span class="no">01</span><div><h3>월세 관리</h3><p>수납 현황과 미납 호실을 한눈에</p></div></div>
+        <div class="row c"><span class="no">02</span><div><h3>입 · 퇴실 관리</h3><p>계약 기간부터 퇴실 정산까지 정확하게</p></div></div>
+        <div class="row c"><span class="no">03</span><div><h3>공실 관리</h3><p>비어있는 방을 색으로 바로 확인</p></div></div>
+        <div class="row c"><span class="no">04</span><div><h3>문자 발송</h3><p>입주자 안내를 앱에서 간편하게</p></div></div>
+        <div class="row c"><span class="no">05</span><div><h3>백업 및 복원</h3><p>소중한 관리 데이터를 안전하게</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- P5 고시ONE gallery -->
+  <section class="page" id="p5">
+    <div class="glow" data-px="0.2" style="width:300px;height:300px;background:var(--cyan);bottom:-160px;right:-140px;opacity:.25"></div>
+    <div class="inner">
+      <p class="kicker c fx">고시ONE — DETAIL</p>
+      <div class="gal-label fx f2"><span>한눈에 보는 고시ONE</span><i>옆으로 넘겨보세요 →</i></div>
+      <div class="gallery fx f3">
+        <!-- 1. 한눈에 -->
+        <div class="card c">
+          <div class="card-top">01 — AT A GLANCE</div>
+          <div class="picto-rows">
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
+              <div><h4>전 호실 현황</h4><p>입실 · 공실 · 미납을 색으로 한 화면에</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M4 8h16M4 12h16M6 4l3 16 3-13 3 13 3-16"/></svg>
+              <div><h4>월세 수납</h4><p>납부일 지난 방은 그 즉시 표시</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+              <div><h4>오늘 일정</h4><p>입실 · 퇴실 예정을 놓치지 않게</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M21 20H3"/></svg>
+              <div><h4>수납률 통계</h4><p>이번 달 수납액 · 수납률 자동 계산</p></div>
+            </div>
+          </div>
+        </div>
+        <!-- 2. Before/After -->
+        <div class="card c">
+          <div class="card-top">02 — BEFORE / AFTER</div>
+          <div class="vs-rows">
+            <div class="vs"><span class="b4">공책에 적는 입주자 명부</span><span class="af"><i>AFTER</i>호실 누르면 입주자 정보가 바로</span></div>
+            <div class="vs"><span class="b4">달력에 표시하던 월세 납부일</span><span class="af"><i>AFTER</i>미납 호실은 앱이 알아서 표시</span></div>
+            <div class="vs"><span class="b4">머릿속으로 외우던 공실 현황</span><span class="af"><i>AFTER</i>공실 개수가 항상 첫 화면에</span></div>
+            <div class="vs"><span class="b4">따로 적어두던 수리 요청</span><span class="af"><i>AFTER</i>민원 · 수리 내역을 앱에 기록</span></div>
+          </div>
+        </div>
+        <!-- 3. 시간 절약 -->
+        <div class="card c center">
+          <div class="bn-label">하루</div>
+          <div class="bn">30분</div>
+          <div class="bn-sub">이면 관리 끝.</div>
+          <div class="bn-div"></div>
+          <div class="bn-label">1년이면</div>
+          <div class="bn">182시간</div>
+          <div class="bn-sub">사장님 시간이 돌아옵니다.</div>
+        </div>
+        <!-- 4. 객실 관리 -->
+        <div class="card c">
+          <div class="card-top">03 — 객실 관리</div>
+          <div class="picto-rows">
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+              <div><h4>드래그로 객실 배치</h4><p>우리 고시원 구조 그대로 화면에</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>
+              <div><h4>입실 처리</h4><p>입실 전 방 체크부터 계약 기록까지</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M9 6l-6 6 6 6M3 12h18"/></svg>
+              <div><h4>퇴실 정산</h4><p>퇴실 정산까지 혼동 없이 정확하게</p></div>
+            </div>
+          </div>
+        </div>
+        <!-- 5. 수납/알림 -->
+        <div class="card c center">
+          <div class="bn-label">월세 납부 알림으로</div>
+          <div class="bn" style="font-size:40px">연체 걱정 끝</div>
+          <div class="bn-sub">납부 현황 확인부터 미납 안내까지</div>
+          <div class="bn-div"></div>
+          <div class="bn-label">미납 호실은</div>
+          <div class="bn" style="font-size:40px">자동 표시</div>
+          <div class="bn-sub">확인하러 다닐 필요가 없습니다.</div>
+        </div>
+        <!-- 6. 민원/수리 -->
+        <div class="card c">
+          <div class="card-top">04 — 민원 · 수리</div>
+          <div class="steps">
+            <div class="stp"><span class="sn">01</span><div><h4>접수</h4><p>호실별로 민원과 수리 요청을 기록</p></div></div>
+            <div class="stp"><span class="sn">02</span><div><h4>처리</h4><p>처리 중 · 완료 상태를 깔끔하게 관리</p></div></div>
+            <div class="stp"><span class="sn">03</span><div><h4>기록</h4><p>지난 수리 내역도 호실별로 남아 있게</p></div></div>
+          </div>
+        </div>
+        <!-- 7. 통계 -->
+        <div class="card c">
+          <div class="card-top">05 — 운영 통계</div>
+          <div class="picto-rows">
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+              <div><h4>매출 흐름</h4><p>월별 수입을 그래프로 확인</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.5 4"/></svg>
+              <div><h4>공실률</h4><p>비어있는 방의 흐름을 한눈에</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M21 20H3"/></svg>
+              <div><h4>수납률</h4><p>이번 달 수납 상황을 숫자로</p></div>
+            </div>
+          </div>
+        </div>
+        <!-- 8. 데이터 안심 -->
+        <div class="card c">
+          <div class="card-top">06 — 데이터 안심</div>
+          <div class="check-rows" style="margin-top:0;flex:1">
+            <div><i>01</i>모든 데이터는 스마트폰 내부에 저장</div>
+            <div><i>02</i>인터넷 연결 없이도 안정적으로 사용</div>
+            <div><i>03</i>데이터 백업으로 안전하게 보관</div>
+            <div><i>04</i>컴퓨터 없이 폰 하나로 어디서나</div>
+          </div>
+        </div>
+        <!-- 9. 평생 라이선스 -->
+        <div class="card c">
+          <div class="card-top">07 — LIFETIME LICENSE</div>
+          <div class="price-old">정상가 350,000원</div>
+          <div class="price-new">198,000원<em>43% OFF</em></div>
+          <div class="price-note">출시 기념 한정 특가 · 행사 종료 후 인상 예정</div>
+          <div class="check-rows">
+            <div><i>01</i>월 사용료 없음, 딱 한 번 구매</div>
+            <div><i>02</i>추가 결제 없이 업데이트 무료</div>
+            <div><i>03</i>1개 라이선스 = 1대 기기</div>
+            <div><i>04</i>안드로이드 스마트폰 전용</div>
+          </div>
+        </div>
+        <!-- 10. 구매 절차 -->
+        <div class="card c">
+          <div class="card-top">08 — HOW TO START</div>
+          <div class="steps">
+            <div class="stp"><span class="sn">01</span><div><h4>구매 및 결제</h4><p>네이버 스마트스토어에서 결제합니다.</p></div></div>
+            <div class="stp"><span class="sn">02</span><div><h4>라이선스 발급</h4><p>결제 확인 후 라이선스 키를 발급합니다.</p></div></div>
+            <div class="stp"><span class="sn">03</span><div><h4>톡톡으로 전달</h4><p>다운로드 링크와 키를 안전하게 전달합니다.</p></div></div>
+            <div class="stp"><span class="sn">04</span><div><h4>설치 후 바로 사용</h4><p>앱 첫 실행 시 키 입력이면 끝.</p></div></div>
+          </div>
+        </div>
+      </div>
+      <a class="cta cta-c fx f4" href="https://smartstore.naver.com/thedesignuncle/products/13642711592" target="_blank" rel="noopener"><span>고시ONE 구매하러 가기</span><span>→</span></a>
+    </div>
+  </section>
+
+  <!-- P6 인건비서 intro -->
+  <section class="page" id="p6">
+    <div class="ghost" data-px="-0.4" style="-webkit-text-stroke:1px rgba(62,224,127,.1)">PAY</div>
+    <div class="glow" data-px="0.3" style="width:320px;height:320px;background:var(--green);top:-120px;right:-140px;opacity:.3"></div>
+    <div class="inner">
+      <p class="kicker g fx">SOFTWARE 02 — 직원 두신 사장님께 · 판매 중</p>
+      <h2 class="fx f2">인건비서<br><span class="grad-g">직원 근무와 급여를<br>쉽고 빠르게.</span></h2>
+      <p class="lead fx f3">근무 시간과 시급만 넣으면 끝. <b>주휴수당까지 규정대로</b> 계산하는 급여 비서.</p>
+      <div class="rows fx f4">
+        <div class="row g"><span class="no">01</span><div><h3>근무시간 관리</h3><p>출퇴근과 근무시간을 간편하게 기록</p></div></div>
+        <div class="row g"><span class="no">02</span><div><h3>급여 계산</h3><p>주휴수당 포함, 규정대로 자동 계산</p></div></div>
+        <div class="row g"><span class="no">03</span><div><h3>직원 관리</h3><p>직원마다 근무 조건 · 급여 내역을 따로</p></div></div>
+        <div class="row g"><span class="no">04</span><div><h3>인건비 통계</h3><p>월 인건비 합계와 흐름을 한눈에</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- P7 인건비서 gallery -->
+  <section class="page" id="p7">
+    <div class="glow" data-px="0.2" style="width:300px;height:300px;background:var(--green);bottom:-160px;left:-140px;opacity:.25"></div>
+    <div class="inner">
+      <p class="kicker g fx">인건비서 — DETAIL</p>
+      <div class="gal-label fx f2"><span>한눈에 보는 인건비서</span><i>옆으로 넘겨보세요 →</i></div>
+      <div class="gallery fx f3">
+        <!-- 1. 한눈에 -->
+        <div class="card g">
+          <div class="card-top">01 — AT A GLANCE</div>
+          <div class="picto-rows">
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+              <div><h4>근무시간 기록</h4><p>출퇴근과 근무시간을 간편하게</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M4 8h16M4 12h16M6 4l3 16 3-13 3 13 3-16"/></svg>
+              <div><h4>급여 자동 계산</h4><p>주휴수당 포함, 규정대로 정확하게</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5c2.8.4 5 2.7 5 5.5"/></svg>
+              <div><h4>직원별 관리</h4><p>근무 조건 · 급여 내역을 따로따로</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7"/></svg>
+              <div><h4>임금명세서</h4><p>양식에 맞춰 자동 생성</p></div>
+            </div>
+          </div>
+        </div>
+        <!-- 2. Before/After -->
+        <div class="card g">
+          <div class="card-top">02 — BEFORE / AFTER</div>
+          <div class="vs-rows">
+            <div class="vs"><span class="b4">엑셀에 근무시간 옮겨 적기</span><span class="af"><i>AFTER</i>앱에 바로 기록, 자동 정리</span></div>
+            <div class="vs"><span class="b4">계산기로 두드리던 월급</span><span class="af"><i>AFTER</i>근무시간 × 시급, 자동 계산</span></div>
+            <div class="vs"><span class="b4">매번 검색하던 주휴수당 기준</span><span class="af"><i>AFTER</i>조건 맞으면 알아서 반영</span></div>
+            <div class="vs"><span class="b4">수기로 만들던 명세서</span><span class="af"><i>AFTER</i>양식으로 자동 생성</span></div>
+          </div>
+        </div>
+        <!-- 3. 빅넘버 -->
+        <div class="card g center">
+          <div class="bn-label">근무시간 × 시급 입력이면</div>
+          <div class="bn">급여 완성</div>
+          <div class="bn-sub">주휴수당까지 규정대로 자동 반영</div>
+          <div class="bn-div"></div>
+          <div class="bn-label">매달 계산기 두드리던 시간</div>
+          <div class="bn">0분</div>
+          <div class="bn-sub">이제 앱이 대신합니다.</div>
+        </div>
+        <!-- 4. 근무기록 -->
+        <div class="card g">
+          <div class="card-top">03 — 근무 기록</div>
+          <div class="steps">
+            <div class="stp"><span class="sn">01</span><div><h4>출퇴근 기록</h4><p>직원별 출퇴근과 근무시간을 매일 간단히</p></div></div>
+            <div class="stp"><span class="sn">02</span><div><h4>날짜별 확인</h4><p>원하는 날짜의 근무 내역을 바로 조회</p></div></div>
+            <div class="stp"><span class="sn">03</span><div><h4>기간별 정리</h4><p>직원별 · 날짜별 · 기간별로 깔끔하게</p></div></div>
+          </div>
+        </div>
+        <!-- 5. 주휴수당 -->
+        <div class="card g center">
+          <div class="bn-label">놓치기 쉬운</div>
+          <div class="bn" style="font-size:40px">주휴수당</div>
+          <div class="bn-sub">조건이 충족되면 자동으로 반영</div>
+          <div class="bn-div"></div>
+          <div class="bn-label">틀리면 곤란한 계산</div>
+          <div class="bn" style="font-size:40px">규정대로</div>
+          <div class="bn-sub">사장님은 확인만 하면 됩니다.</div>
+        </div>
+        <!-- 6. 임금명세서 -->
+        <div class="card g">
+          <div class="card-top">04 — 임금명세서</div>
+          <div class="picto-rows">
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7"/></svg>
+              <div><h4>양식으로 자동 생성</h4><p>급여 내역이 명세서 양식으로 정리</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>
+              <div><h4>내역 그대로 반영</h4><p>근무시간 · 급여가 자동으로 채워짐</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5c2.8.4 5 2.7 5 5.5"/></svg>
+              <div><h4>직원별로 따로</h4><p>직원마다 각자의 명세서를 관리</p></div>
+            </div>
+          </div>
+        </div>
+        <!-- 7. 통계 -->
+        <div class="card g">
+          <div class="card-top">05 — 인건비 통계</div>
+          <div class="picto-rows">
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+              <div><h4>월 인건비 흐름</h4><p>이번 달 합계와 흐름을 한눈에</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M21 20H3"/></svg>
+              <div><h4>직원별 통계</h4><p>근무시간 · 급여를 직원별로 비교</p></div>
+            </div>
+            <div class="picto">
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+              <div><h4>기간별 확인</h4><p>원하는 기간의 인건비를 바로</p></div>
+            </div>
+          </div>
+        </div>
+        <!-- 8. 대상 -->
+        <div class="card g">
+          <div class="card-top">06 — FOR OWNERS</div>
+          <div class="steps">
+            <div class="stp"><span class="sn">01</span><div><h4>식당 · 카페 사장님께 딱</h4><p>직원 · 아르바이트 근무시간을 직접 관리하는 소규모 사업장에 맞췄습니다.</p></div></div>
+            <div class="stp"><span class="sn">02</span><div><h4>복잡한 엑셀 없이</h4><p>스마트폰 하나로 기록부터 정산까지.</p></div></div>
+            <div class="stp"><span class="sn">03</span><div><h4>급여일이 편해집니다</h4><p>월말 계산 부담이 사라집니다.</p></div></div>
+          </div>
+        </div>
+        <!-- 9. 데이터 안심 -->
+        <div class="card g">
+          <div class="card-top">07 — 데이터 안심</div>
+          <div class="check-rows" style="margin-top:0;flex:1">
+            <div><i>01</i>입력한 데이터는 스마트폰에 저장</div>
+            <div><i>02</i>백업 기능으로 중요한 기록 보관</div>
+            <div><i>03</i>평생 라이선스 · 월 사용료 없음</div>
+            <div><i>04</i>안드로이드 스마트폰 전용</div>
+          </div>
+        </div>
+        <!-- 10. 구매 절차 -->
+        <div class="card g">
+          <div class="card-top">08 — HOW TO START</div>
+          <div class="steps">
+            <div class="stp"><span class="sn">01</span><div><h4>구매 및 결제</h4><p>네이버 스마트스토어에서 결제합니다.</p></div></div>
+            <div class="stp"><span class="sn">02</span><div><h4>라이선스 발급</h4><p>결제 확인 후 라이선스 키를 발급합니다.</p></div></div>
+            <div class="stp"><span class="sn">03</span><div><h4>톡톡으로 전달</h4><p>다운로드 링크와 키를 안전하게 전달합니다.</p></div></div>
+            <div class="stp"><span class="sn">04</span><div><h4>설치 후 바로 사용</h4><p>앱 첫 실행 시 키 입력이면 끝.</p></div></div>
+          </div>
+        </div>
+      </div>
+      <a class="cta cta-g fx f4" href="https://smartstore.naver.com/thedesignuncle/products/13649007820" target="_blank" rel="noopener"><span>인건비서 구매하러 가기</span><span>→</span></a>
+    </div>
+  </section>
+
+  <!-- P8 지금시세는 -->
+  <section class="page" id="p8">
+    <div class="ghost" data-px="-0.35" style="-webkit-text-stroke:1px rgba(245,169,127,.1);font-size:22vw">시세</div>
+    <div class="glow" data-px="0.25" style="width:320px;height:320px;background:#F5A97F;top:-140px;left:-140px;opacity:.18"></div>
+    <div class="inner">
+      <p class="kicker fx" style="color:#F5A97F">SOFTWARE 03 — 식당 사장님께</p>
+      <h2 class="fx f2" data-no-split><span style="background:linear-gradient(90deg,#F5A97F,#FBD3B8);-webkit-background-clip:text;background-clip:text;color:transparent">지금 시세는</span><br>얼마일까요?</h2>
+      <p class="lead fx f3">식당 사장님을 위한 <b>식자재 시세 관리 서비스</b>.<br>오늘 사도 되는 가격인지, 데이터가 알려드립니다.</p>
+      <div class="rows fx f4">
+        <div class="row"><span class="no" style="color:#F5A97F">01</span><div><h3>실시간 식자재 시세</h3><p>가격 추이 그래프와 시세 변동 히스토리</p></div></div>
+        <div class="row"><span class="no" style="color:#F5A97F">02</span><div><h3>적정 구매가 분석</h3><p>지금 가격이 비싼지 싼지 바로 판단</p></div></div>
+        <div class="row"><span class="no" style="color:#F5A97F">03</span><div><h3>급등 · 급락 알림</h3><p>가격이 크게 움직이면 놓치지 않게</p></div></div>
+        <div class="row"><span class="no" style="color:#F5A97F">04</span><div><h3>구매 타이밍 분석</h3><p>가격 예측으로 사는 시점까지 제안</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- P9 사이니지OS -->
+  <section class="page" id="p9">
+    <div class="ghost" data-px="-0.4" style="-webkit-text-stroke:1px rgba(59,130,246,.1)">OS</div>
+    <div class="glow" data-px="0.3" style="width:340px;height:340px;background:var(--blue);top:-140px;right:-140px;opacity:.25"></div>
+    <div class="inner">
+      <p class="kicker b fx">SOFTWARE 04 — 사이니지 플랫폼</p>
+      <h2 class="fx f2">사이니지OS<br><span class="grad-b">매장 화면을<br>원격으로 움직입니다.</span></h2>
+      <p class="lead fx f3">안드로이드 기반 <b>디지털 사이니지 플랫폼</b>. 매장에 손대지 않아도 화면이 바뀝니다.</p>
+      <div class="rows fx f4">
+        <div class="row"><span class="no" style="color:var(--blue)">01</span><div><h3>광고 송출</h3><p>신메뉴 · 이벤트를 매장 모니터에 바로</p></div></div>
+        <div class="row"><span class="no" style="color:var(--blue)">02</span><div><h3>원격 관리</h3><p>매장에 가지 않아도 어디서든 제어</p></div></div>
+        <div class="row"><span class="no" style="color:var(--blue)">03</span><div><h3>스케줄 재생</h3><p>시간대별로 다른 콘텐츠를 자동 재생</p></div></div>
+        <div class="row"><span class="no" style="color:var(--blue)">04</span><div><h3>매장 디스플레이 운영</h3><p>여러 대의 화면도 한 곳에서 관리</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- P10 사이니지 토탈 관리 -->
+  <section class="page" id="p10">
+    <div class="ghost" data-px="-0.35" style="-webkit-text-stroke:1px rgba(59,130,246,.08)">SIGN</div>
+    <div class="glow" data-px="0.25" style="width:300px;height:300px;background:var(--blue);bottom:-160px;left:-140px;opacity:.2"></div>
+    <div class="inner">
+      <p class="kicker b fx">SIGNAGE SERVICE — 디지털 사이니지 토탈 관리</p>
+      <h2 class="fx f2">모니터 뒤에는<br><span class="grad-b">디자이너가 있습니다.</span></h2>
+      <p class="lead fx f3">디자인부터 원격 송출까지, 카톡 한 통이면 됩니다.</p>
+      <div class="flow fx f4">
+        <div class="flow-step"><span class="fn">01</span><div><h3>카카오톡으로 요청</h3><p>신메뉴 · 이벤트 등 원하는 내용을 톡으로</p></div></div>
+        <div class="flow-step"><span class="fn">02</span><div><h3>디자인 제작 및 검수</h3><p>전문 디자이너가 제작, 사장님이 확인</p></div></div>
+        <div class="flow-step"><span class="fn">03</span><div><h3>사이니지OS 업로드</h3><p>확인된 콘텐츠를 시스템에 등록</p></div></div>
+        <div class="flow-step"><span class="fn">04</span><div><h3>매장 모니터에 자동 송출</h3><p>별도 조작 없이 화면이 바뀝니다</p></div></div>
+        <div class="flow-step"><span class="fn">05</span><div><h3>손님의 시선과 매출로</h3><p>눈에 띄는 디자인이 주문을 이끕니다</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- P11 WHY + 철학 -->
+  <section class="page" id="p11">
+    <div class="ghost" data-px="-0.3" style="font-size:26vw;top:30%">삼촌</div>
+    <div class="inner">
+      <p class="kicker fx">WHY THE DESIGN UNCLE</p>
+      <h2 class="fx f2">브랜드를 만드는 디자인,<br>운영을 바꾸는 프로그램.</h2>
+      <div class="letter fx f3">
+        <p>디자인은 브랜드를 만들고, 프로그램은 운영을 바꿉니다. 좋은 디자인은 비즈니스의 첫인상을 만들고, 좋은 프로그램은 비즈니스의 하루를 바꿉니다. 디자인하는삼촌은 두 가지를 모두 만듭니다.</p>
+        <p class="sign">— 디자인하는삼촌의 철학</p>
+      </div>
+      <div class="fx f4">
+        <details><summary>디자인과 프로그램을 같이 맡길 수 있나요?<span class="faq-icon"></span></summary><div class="ans-wrap"><div class="ans-inner"><div class="ans">네, 그게 저희의 가장 큰 강점입니다. 기획부터 디자인, 개발, 제작, 운영까지 한 곳에서 진행합니다.</div></div></div></details>
+        <details><summary>앱은 어디서 구매하나요?<span class="faq-icon"></span></summary><div class="ans-wrap"><div class="ans-inner"><div class="ans">고시ONE과 인건비서는 네이버 스마트스토어에서 판매 중입니다. 결제 후 설치 안내를 드립니다.</div></div></div></details>
+        <details><summary>문제가 생기면요?<span class="faq-icon"></span></summary><div class="ans-wrap"><div class="ans-inner"><div class="ans">스토어 톡톡으로 연락 주시면 삼촌이 직접 확인하고 답변드립니다.</div></div></div></details>
+      </div>
+    </div>
+  </section>
+
+
+    <!-- P12 FINAL -->
+  <section class="page" id="p12">
+    <div class="ghost" data-px="-0.35" style="font-size:28vw;top:34%">START</div>
+    <div class="glow" data-px="0.25" style="width:360px;height:360px;background:var(--naver);bottom:-180px;left:50%;margin-left:-180px;opacity:.22"></div>
+    <div class="inner" style="text-align:center">
+      <h2 class="fx" style="margin-bottom:12px">매장을 운영하는<br>가장 쉬운 방법.</h2>
+      <p class="lead fx f2" style="margin:0 auto 34px">고시ONE · 인건비서<br>네이버 스마트스토어에서 판매 중입니다.</p>
+      <a class="cta cta-n fx f3" href="https://m.smartstore.naver.com/thedesignuncle" target="_blank" rel="noopener" style="max-width:420px;margin:0 auto"><span>네이버 스마트스토어 바로가기</span><span>→</span></a>
+      <div class="foot fx f4" style="text-align:center">
+      <img src="data:image/png;base64,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" alt="TheDesignUncle" style="height:22px;width:auto;display:block;margin:0 auto 8px;opacity:.8"><b>디자인하는삼촌</b> TheDesignUncle<br>
+        디자인을 넘어, 비즈니스를 설계합니다.<br>
+        © 2026 TheDesignUncle. All rights reserved.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ===== split headlines into masked words for reveal motion =====
+  function splitWords(el, inheritCls){
+    Array.prototype.slice.call(el.childNodes).forEach(function(n){
+      if(n.nodeType === 3){
+        if(!n.textContent.trim()) return;
+        var frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function(part){
+          if(!part) return;
+          if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); return; }
+          var w = document.createElement('span'); w.className = 'w';
+          var i = document.createElement('i'); i.textContent = part;
+          if(inheritCls) i.className = inheritCls;
+          w.appendChild(i); frag.appendChild(w);
+        });
+        el.replaceChild(frag, n);
+      }else if(n.nodeType === 1 && n.tagName !== 'BR' && !n.classList.contains('w')){
+        splitWords(n, n.className || inheritCls);
+      }
+    });
+  }
+  if(!reduce){
+    document.querySelectorAll('.page h1, .page h2').forEach(function(h){
+      if(h.hasAttribute('data-no-split')) return;  // skip gradient headlines
+      splitWords(h, null);
+      Array.prototype.slice.call(h.querySelectorAll('.w i')).forEach(function(i,k){
+        i.style.transitionDelay = (0.15 + k*0.055) + 's';
+      });
+    });
+  }
+  var pager = document.getElementById('pager');
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+  var dotsWrap = document.getElementById('dots');
+
+  // page title labels for dots
+  var pageTitles = [
+    'HOME', '브랜드 선언', '디자인', '포트폴리오',
+    '소프트웨어', '고시ONE', '고시ONE 상세', '인건비서',
+    '인건비서 상세', '지금 시세는', '사이니지OS', '사이니지OS',
+    '철학', 'START'
+  ];
+
+  // build dots
+  pages.forEach(function(p,i){
+    var b = document.createElement('button');
+    b.setAttribute('aria-label',(i+1)+'번째 화면으로');
+    b.addEventListener('click',function(){go(i)});
+    // add label span
+    var lbl = document.createElement('span');
+    lbl.className = 'dot-label';
+    lbl.textContent = pageTitles[i] || (i+1)+'';
+    b.appendChild(lbl);
+    dotsWrap.appendChild(b);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function lerp(a,b,t){return a+(b-a)*t}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+
+  function go(i){
+    if(reduce){ pager.scrollTop = pages[i].offsetTop; onNav(i); return; }
+    var start = pager.scrollTop;
+    var target = pages[i].offsetTop;
+    var dur = 680; // ms
+    var t0 = null;
+    function ease(t){ return t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; } // ease-in-out-cubic
+    function step(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min((ts-t0)/dur, 1);
+      pager.scrollTop = start + (target-start)*ease(p);
+      if(p < 1){ requestAnimationFrame(step); }
+      else { navigating = false; onNav(i); }
+    }
+    navigating = true;
+    requestAnimationFrame(step);
+  }
+
+  function onNav(i){
+    curPage = clamp(i, 0, pages.length-1);
+    dots.forEach(function(d,j){ d.classList.toggle('on', j===curPage); });
+    pages.forEach(function(p,j){
+      p.classList.toggle('active', j===curPage);
+      p.classList.remove('exit-up');
+    });
+    if(pages[curPage-1]) pages[curPage-1].classList.add('exit-up');
+  }
+
+  var curPage = 0, navigating = false;
+
+  document.querySelectorAll('[data-go]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      go(parseInt(a.getAttribute('data-go'),10));
+    });
+  });
+
+  // IO still used for active class on manual scroll
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      var i = pages.indexOf(e.target);
+      if(e.isIntersecting && !navigating){
+        curPage = i;
+        dots.forEach(function(d,j){ d.classList.toggle('on', j===i); });
+        e.target.classList.add('active');
+        e.target.classList.remove('exit-up');
+      } else if(!e.isIntersecting) {
+        e.target.classList.remove('active');
+        if(e.boundingClientRect.top < 0) e.target.classList.add('exit-up');
+        else e.target.classList.remove('exit-up');
+      }
+    });
+  },{root:pager,threshold:.45});
+  pages.forEach(function(p){ io.observe(p); });
+
+  // wheel: one tick = one page
+  var wheelLock = false;
+  pager.addEventListener('wheel', function(e){
+    e.preventDefault();
+    if(navigating || wheelLock) return;
+    wheelLock = true;
+    setTimeout(function(){ wheelLock = false; }, 750);
+    var dir = e.deltaY > 0 ? 1 : -1;
+    var next = clamp(curPage + dir, 0, pages.length-1);
+    if(next !== curPage) go(next);
+  }, {passive:false});
+
+  // touch swipe: one swipe = one page
+  var tY0 = null, tLocked = false;
+  pager.addEventListener('touchstart', function(e){
+    if(e.target.closest('.gallery')) return;
+    tY0 = e.touches[0].clientY;
+  }, {passive:true});
+  pager.addEventListener('touchend', function(e){
+    if(e.target.closest('.gallery') || tY0 === null) return;
+    var dy = tY0 - e.changedTouches[0].clientY;
+    tY0 = null;
+    if(Math.abs(dy) < 40 || navigating || tLocked) return;
+    tLocked = true;
+    setTimeout(function(){ tLocked = false; }, 750);
+    var dir = dy > 0 ? 1 : -1;
+    var next = clamp(curPage + dir, 0, pages.length-1);
+    if(next !== curPage) go(next);
+  }, {passive:true});
+
+  // keyboard
+  document.addEventListener('keydown', function(e){
+    if(navigating) return;
+    if(e.key==='ArrowDown'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); go(clamp(curPage+1,0,pages.length-1)); }
+    if(e.key==='ArrowUp'||e.key==='PageUp'){ e.preventDefault(); go(clamp(curPage-1,0,pages.length-1)); }
+  });
+
+  // ===== scroll-driven effects: parallax + depth + bg tint =====
+
+  // per-page background tint (hero → pain → gosi ×2 → pay ×2 → uncle → final)
+  var tints = [
+    [10,14,26],[13,12,24],[8,20,28],[20,10,28],[10,18,20],[7,23,32],[7,23,32],[7,26,19],[7,26,19],[28,18,12],[8,14,26],[8,14,26],[17,14,28],[10,14,26]
+  ];
+  if(!reduce){
+    var pxEls = Array.prototype.slice.call(document.querySelectorAll('[data-px]'));
+    var ticking = false;
+
+    function frame(){
+      var vh = pager.clientHeight;
+      var st = pager.scrollTop;
+
+      // 1) background tint lerp between sections
+      var f = clamp(st/vh, 0, tints.length-1);
+      var i0 = Math.floor(f), i1 = Math.min(i0+1, tints.length-1), t = f - i0;
+      var c0 = tints[i0], c1 = tints[i1];
+      pager.style.backgroundColor = 'rgb(' +
+        Math.round(lerp(c0[0],c1[0],t)) + ',' +
+        Math.round(lerp(c0[1],c1[1],t)) + ',' +
+        Math.round(lerp(c0[2],c1[2],t)) + ')';
+
+      // 4) darkness: CSS class-based so it doesn't fight snap scroll
+      var activeIdx = clamp(Math.round(st/vh), 0, pages.length-1);
+      pages.forEach(function(p, i){
+        var dist = Math.abs(i - activeIdx);
+        if(dist === 0){
+          p.style.opacity = '1';
+        } else if(dist === 1){
+          p.style.opacity = '0.15';
+        } else {
+          p.style.opacity = '0.05';
+        }
+        p.style.transform = '';
+        p.style.filter = '';
+      });
+
+      // 5) ghost/glow parallax — also fade through transitions
+      pxEls.forEach(function(el){
+        var page = el.closest('.page');
+        var rel = st - page.offsetTop;
+        var speed = parseFloat(el.getAttribute('data-px'));
+        var y = rel * speed;
+        var a = clamp(Math.abs(rel)/vh, 0, 1);
+        var fade = clamp(1 - a*1.6, 0, 1);
+        if(el.classList.contains('ghost')){
+          el.style.transform = 'translate(-50%,-50%) translateY('+y+'px) rotate('+(rel*0.006)+'deg)';
+          el.style.opacity = String(fade);
+        }else{
+          el.style.transform = 'translateY('+y+'px)';
+          el.style.opacity = String(fade*.4);
+        }
+      });
+
+      ticking = false;
+    }
+    pager.addEventListener('scroll',function(){
+      if(!ticking){requestAnimationFrame(frame);ticking = true;}
+    },{passive:true});
+    frame();
+  }else{
+    document.querySelectorAll('.ghost').forEach(function(el){
+      el.style.transform='translate(-50%,-50%)';
+    });
+  }
+
+  // ===== Gallery + Portfolio thumbs: mouse drag + rAF auto-flow =====
+  var allScrollable = Array.prototype.slice.call(document.querySelectorAll('.gallery, .port-thumbs'));
+  allScrollable.forEach(function(gal){
+      var cards = gal.querySelectorAll('.card, .pt');
+      if(!cards.length) return;
+      var cardW = 0, animFrame = null, pos = 0, speed = 0.55, dragging = false;
+      var isDown = false, startX = 0, scrollStart = 0, lastX = 0, vel = 0;
+      var total, maxScroll;
+
+      function getCardW(){
+        cardW = cards[0].offsetWidth + parseInt(getComputedStyle(gal).gap||'12');
+        total = cardW * cards.length;
+        maxScroll = gal.scrollWidth - gal.clientWidth;
+      }
+
+      // rAF-driven smooth infinite scroll
+      function tick(){
+        if(!dragging){
+          pos += speed;
+          // seamless loop: when reaching end, jump back to start
+          if(pos >= maxScroll + cardW * 0.5) pos = 0;
+          gal.scrollLeft = pos;
+        }
+        animFrame = requestAnimationFrame(tick);
+      }
+
+      // Mouse drag
+      gal.addEventListener('mousedown', function(e){
+        isDown = true; dragging = true;
+        gal.classList.add('dragging');
+        startX = e.pageX; scrollStart = gal.scrollLeft;
+        lastX = e.pageX; vel = 0;
+        e.preventDefault();
+      });
+      document.addEventListener('mouseup', function(){
+        if(!isDown) return;
+        isDown = false; gal.classList.remove('dragging');
+        // apply fling, then resume auto
+        var fling = -vel * 8;
+        pos = gal.scrollLeft + fling;
+        pos = Math.max(0, Math.min(pos, maxScroll));
+        gal.scrollTo({left: pos, behavior:'smooth'});
+        setTimeout(function(){ dragging = false; }, 400);
+      });
+      document.addEventListener('mousemove', function(e){
+        if(!isDown) return;
+        vel = e.pageX - lastX; lastX = e.pageX;
+        pos = scrollStart - (e.pageX - startX) * 1.2;
+        pos = Math.max(0, Math.min(pos, maxScroll));
+        gal.scrollLeft = pos;
+      });
+
+      // Touch: pause auto on manual swipe
+      gal.addEventListener('touchstart', function(e){
+        dragging = true;
+        startX = e.touches[0].clientX;
+        scrollStart = gal.scrollLeft; lastX = startX; vel = 0;
+      },{passive:true});
+      gal.addEventListener('touchmove', function(e){
+        vel = e.touches[0].clientX - lastX;
+        lastX = e.touches[0].clientX;
+        pos = scrollStart - (lastX - startX) * 1.1;
+        pos = Math.max(0, Math.min(pos, maxScroll));
+        gal.scrollLeft = pos;
+      },{passive:true});
+      gal.addEventListener('touchend', function(){
+        pos = gal.scrollLeft - vel * 6;
+        pos = Math.max(0, Math.min(pos, maxScroll));
+        gal.scrollTo({left: pos, behavior:'smooth'});
+        setTimeout(function(){ dragging = false; }, 500);
+      });
+
+      // Wheel → horizontal
+      gal.addEventListener('wheel', function(e){
+        if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+          e.preventDefault();
+          pos = Math.max(0, Math.min(pos + e.deltaY * 0.9, maxScroll));
+        }
+      },{passive:false});
+
+      getCardW();
+      window.addEventListener('resize', getCardW);
+      animFrame = requestAnimationFrame(tick);
+    });
+  (function(){
+    var allDetails = Array.prototype.slice.call(document.querySelectorAll('details'));
+    allDetails.forEach(function(d){
+      d.addEventListener('click', function(e){
+        e.preventDefault();
+        var isOpen = d.hasAttribute('open');
+        // close all others in same page
+        var page = d.closest('.page');
+        if(page){
+          page.querySelectorAll('details[open]').forEach(function(od){
+            if(od !== d) od.removeAttribute('open');
+          });
+        }
+        if(isOpen){ d.removeAttribute('open'); } else { d.setAttribute('open',''); }
+      });
+    });
+  })();
+})();
+</script>
+</body>
+</html>
