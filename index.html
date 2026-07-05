@@ -43,8 +43,6 @@ img{max-width:100%;display:block}
   height:100dvh;
   position:relative;display:flex;flex-direction:column;justify-content:center;
   padding:40px 24px 40px;overflow:hidden;
-  will-change:opacity;
-  transition:opacity .5s ease;
 }
 .inner{max-width:560px;margin:0 auto;width:100%;position:relative;z-index:2}
 
@@ -348,12 +346,31 @@ details[open] .ans-wrap{grid-template-rows:1fr}
 .page.exit-up .fx.f4,.page.exit-up .fx.f5{transition-delay:0s}
 
 /* word-mask headline reveal */
-.w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.1em;margin-bottom:-.1em}
-.w i{
-  display:inline-block;font-style:normal;
-  transform:translateY(118%);transition:transform .9s var(--ease);
+.w{
+  display:inline-block;
+  overflow:hidden;
+  vertical-align:bottom;
+  padding-bottom:.12em;
+  margin-bottom:-.12em;
+  /* iOS Safari needs explicit clip */
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
 }
-.page.active .w i{transform:none}
+.w i{
+  display:inline-block;
+  font-style:normal;
+  -webkit-transform:translateY(120%);
+  transform:translateY(120%);
+  -webkit-transition:-webkit-transform .9s var(--ease);
+  transition:transform .9s var(--ease);
+  /* Force GPU layer on iOS */
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+}
+.page.active .w i{
+  -webkit-transform:none;
+  transform:none;
+}
 
 /* feature rows rise one by one */
 .rows .row{opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
@@ -602,13 +619,15 @@ body::after{
 
 <nav class="dots" id="dots" aria-label="페이지 이동"></nav>
 
+<div id="glow-canvas" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden">
+  <div id="gc1" style="position:absolute;border-radius:50%;filter:blur(90px);transition:all 1.4s ease;will-change:transform,background,opacity"></div>
+  <div id="gc2" style="position:absolute;border-radius:50%;filter:blur(110px);transition:all 1.6s ease;will-change:transform,background,opacity"></div>
+</div>
 <main id="pager">
 
   <!-- P0 HERO: 브랜드 -->
   <section class="page" id="p0">
     <div class="ghost" data-px="-0.35" style="top:38%">UNCLE</div>
-    <div class="glow" data-px="0.25" style="width:340px;height:340px;background:var(--cyan);top:-140px;right:-140px"></div>
-    <div class="glow" data-px="-0.2" style="width:300px;height:300px;background:var(--green);bottom:-160px;left:-150px;opacity:.28"></div>
     <div class="inner">
       <p class="kicker fx">DESIGN & DIGITAL SOLUTION STUDIO</p>
       <h1 class="fx f2">운영은 더 쉽게,<br>성장은 더 크게.<br><span class="grad-c">디자인하는삼촌이</span><br><span class="grad-g">함께합니다.</span></h1>
@@ -649,7 +668,6 @@ body::after{
   <!-- P2 디자인 서비스 -->
   <section class="page" id="p2">
     <div class="ghost" data-px="-0.35" style="font-size:28vw">DESIGN</div>
-    <div class="glow" data-px="0.25" style="width:320px;height:320px;background:var(--cyan);top:-140px;left:-140px;opacity:.22"></div>
     <div class="inner">
       <p class="kicker fx">SERVICE 01 — DESIGN</p>
       <h2 class="fx f2">브랜드의 첫인상부터<br><span class="grad-c">매장의 구석구석까지.</span></h2>
@@ -667,7 +685,6 @@ body::after{
   <!-- P2b 포트폴리오 — 디자인 작업물 -->
   <section class="page" id="p2b">
     <div class="ghost" data-px="-0.3" style="font-size:22vw;top:32%">WORK</div>
-    <div class="glow" data-px="0.22" style="width:300px;height:300px;background:#C084FC;top:-140px;right:-140px;opacity:.15"></div>
     <div class="inner">
       <p class="kicker fx" style="color:#C084FC">PORTFOLIO — 직접 확인해 보세요</p>
       <h2 class="fx f2" data-no-split style="margin-bottom:8px">브랜드부터 매장까지,<br><span style="background:linear-gradient(90deg,#C084FC,#E879F9);-webkit-background-clip:text;background-clip:text;color:transparent">만든 것들이 증명합니다.</span></h2>
@@ -774,7 +791,6 @@ body::after{
   <!-- P3 소프트웨어 라인업 -->
   <section class="page" id="p3">
     <div class="ghost" data-px="-0.35" style="font-size:24vw">SOFTWARE</div>
-    <div class="glow" data-px="0.25" style="width:320px;height:320px;background:var(--green);bottom:-160px;right:-140px;opacity:.22"></div>
     <div class="inner">
       <p class="kicker fx">SERVICE 02 — SOFTWARE</p>
       <h2 class="fx f2">프로그램도<br><span class="grad-g">직접 만듭니다.</span></h2>
@@ -799,7 +815,6 @@ body::after{
   <!-- P4 고시ONE intro -->
   <section class="page" id="p4">
     <div class="ghost" data-px="-0.4" style="-webkit-text-stroke:1px rgba(46,230,200,.1)">ONE</div>
-    <div class="glow" data-px="0.3" style="width:320px;height:320px;background:var(--cyan);top:-120px;left:-140px;opacity:.3"></div>
     <div class="inner">
       <p class="kicker c fx">SOFTWARE 01 — 고시원 사장님께 · 판매 중</p>
       <h2 class="fx f2">고시ONE<br><span class="grad-c">고시원 운영을 위한<br>통합 관리 솔루션.</span></h2>
@@ -816,7 +831,6 @@ body::after{
 
   <!-- P5 고시ONE gallery -->
   <section class="page" id="p5">
-    <div class="glow" data-px="0.2" style="width:300px;height:300px;background:var(--cyan);bottom:-160px;right:-140px;opacity:.25"></div>
     <div class="inner">
       <p class="kicker c fx">고시ONE — DETAIL</p>
       <div class="gal-label fx f2"><span>한눈에 보는 고시ONE</span><i>옆으로 넘겨보세요 →</i></div>
@@ -959,7 +973,6 @@ body::after{
   <!-- P6 인건비서 intro -->
   <section class="page" id="p6">
     <div class="ghost" data-px="-0.4" style="-webkit-text-stroke:1px rgba(62,224,127,.1)">PAY</div>
-    <div class="glow" data-px="0.3" style="width:320px;height:320px;background:var(--green);top:-120px;right:-140px;opacity:.3"></div>
     <div class="inner">
       <p class="kicker g fx">SOFTWARE 02 — 직원 두신 사장님께 · 판매 중</p>
       <h2 class="fx f2">인건비서<br><span class="grad-g">직원 근무와 급여를<br>쉽고 빠르게.</span></h2>
@@ -975,7 +988,6 @@ body::after{
 
   <!-- P7 인건비서 gallery -->
   <section class="page" id="p7">
-    <div class="glow" data-px="0.2" style="width:300px;height:300px;background:var(--green);bottom:-160px;left:-140px;opacity:.25"></div>
     <div class="inner">
       <p class="kicker g fx">인건비서 — DETAIL</p>
       <div class="gal-label fx f2"><span>한눈에 보는 인건비서</span><i>옆으로 넘겨보세요 →</i></div>
@@ -1114,7 +1126,6 @@ body::after{
   <!-- P8 지금시세는 -->
   <section class="page" id="p8">
     <div class="ghost" data-px="-0.35" style="-webkit-text-stroke:1px rgba(245,169,127,.1);font-size:22vw">시세</div>
-    <div class="glow" data-px="0.25" style="width:320px;height:320px;background:#F5A97F;top:-140px;left:-140px;opacity:.18"></div>
     <div class="inner">
       <p class="kicker fx" style="color:#F5A97F">SOFTWARE 03 — 식당 사장님께</p>
       <h2 class="fx f2" data-no-split><span style="background:linear-gradient(90deg,#F5A97F,#FBD3B8);-webkit-background-clip:text;background-clip:text;color:transparent">지금 시세는</span><br>얼마일까요?</h2>
@@ -1131,7 +1142,6 @@ body::after{
   <!-- P9 사이니지OS -->
   <section class="page" id="p9">
     <div class="ghost" data-px="-0.4" style="-webkit-text-stroke:1px rgba(59,130,246,.1)">OS</div>
-    <div class="glow" data-px="0.3" style="width:340px;height:340px;background:var(--blue);top:-140px;right:-140px;opacity:.25"></div>
     <div class="inner">
       <p class="kicker b fx">SOFTWARE 04 — 사이니지 플랫폼</p>
       <h2 class="fx f2">사이니지OS<br><span class="grad-b">매장 화면을<br>원격으로 움직입니다.</span></h2>
@@ -1148,7 +1158,6 @@ body::after{
   <!-- P10 사이니지 토탈 관리 -->
   <section class="page" id="p10">
     <div class="ghost" data-px="-0.35" style="-webkit-text-stroke:1px rgba(59,130,246,.08)">SIGN</div>
-    <div class="glow" data-px="0.25" style="width:300px;height:300px;background:var(--blue);bottom:-160px;left:-140px;opacity:.2"></div>
     <div class="inner">
       <p class="kicker b fx">SIGNAGE SERVICE — 디지털 사이니지 토탈 관리</p>
       <h2 class="fx f2">모니터 뒤에는<br><span class="grad-b">디자이너가 있습니다.</span></h2>
@@ -1185,7 +1194,6 @@ body::after{
     <!-- P12 FINAL -->
   <section class="page" id="p12">
     <div class="ghost" data-px="-0.35" style="font-size:28vw;top:34%">START</div>
-    <div class="glow" data-px="0.25" style="width:360px;height:360px;background:var(--naver);bottom:-180px;left:50%;margin-left:-180px;opacity:.22"></div>
     <div class="inner" style="text-align:center">
       <h2 class="fx" style="margin-bottom:12px">매장을 운영하는<br>가장 쉬운 방법.</h2>
       <p class="lead fx f2" style="margin:0 auto 34px">고시ONE · 인건비서<br>네이버 스마트스토어에서 판매 중입니다.</p>
@@ -1287,18 +1295,22 @@ body::after{
     pages.forEach(function(p,j){
       p.classList.toggle('active', j===curPage);
       p.classList.remove('exit-up');
-      // Force opacity reset so pages never stay dark after nav
-      if(j === curPage){ p.style.opacity='1'; }
-      else if(Math.abs(j-curPage)===1){ p.style.opacity='0.15'; }
-      else{ p.style.opacity='0.05'; }
     });
     if(pages[curPage-1]) pages[curPage-1].classList.add('exit-up');
+    updateGlow(curPage);
+    // Force immediate opacity based on position (no rAF delay)
+    var st = pager.scrollTop, vh = pager.clientHeight;
+    var activeIdx = clamp(Math.round(st/vh), 0, pages.length-1);
+    pages.forEach(function(p,j){
+      var dist = Math.abs(j - activeIdx);
+      p.style.opacity = dist===0 ? '1' : dist===1 ? '0.15' : '0.05';
+    });
   }
 
   var curPage = 0, navigating = false;
-
-  // Set initial opacities on load — prevents dark pages on mobile
-  onNav(0);
+  // Immediately show first page bright before rAF starts
+  pages[0].style.opacity = '1';
+  for(var _i=1;_i<pages.length;_i++) pages[_i].style.opacity='0.05';
 
   document.querySelectorAll('[data-go]').forEach(function(a){
     a.addEventListener('click',function(e){
@@ -1307,22 +1319,22 @@ body::after{
     });
   });
 
-  // IO still used for active class on manual scroll
+  // IO — active class drives stagger animations
   var io = new IntersectionObserver(function(es){
     es.forEach(function(e){
       var i = pages.indexOf(e.target);
-      if(e.isIntersecting && !navigating){
+      if(e.isIntersecting){
         curPage = i;
         dots.forEach(function(d,j){ d.classList.toggle('on', j===i); });
         e.target.classList.add('active');
         e.target.classList.remove('exit-up');
-      } else if(!e.isIntersecting) {
+      } else {
         e.target.classList.remove('active');
         if(e.boundingClientRect.top < 0) e.target.classList.add('exit-up');
         else e.target.classList.remove('exit-up');
       }
     });
-  },{root:pager,threshold:.45});
+  },{root:pager,threshold:.5,rootMargin:'0px'});
   pages.forEach(function(p){ io.observe(p); });
 
   // wheel: one tick = one page
@@ -1338,18 +1350,21 @@ body::after{
   }, {passive:false});
 
   // touch swipe: one swipe = one page
-  var tY0 = null, tLocked = false;
+  var tY0 = null, tX0 = null, tLocked = false;
   pager.addEventListener('touchstart', function(e){
-    if(e.target.closest('.gallery')) return;
+    if(e.target.closest('.gallery,.port-thumbs')) return;
     tY0 = e.touches[0].clientY;
+    tX0 = e.touches[0].clientX;
   }, {passive:true});
   pager.addEventListener('touchend', function(e){
-    if(e.target.closest('.gallery') || tY0 === null) return;
+    if(e.target.closest('.gallery,.port-thumbs') || tY0 === null) return;
     var dy = tY0 - e.changedTouches[0].clientY;
-    tY0 = null;
-    if(Math.abs(dy) < 40 || navigating || tLocked) return;
+    var dx = Math.abs(e.changedTouches[0].clientX - tX0);
+    tY0 = null; tX0 = null;
+    // ignore horizontal swipes, require 50px vertical, no snap if already navigating
+    if(dx > Math.abs(dy)*0.7 || Math.abs(dy) < 50 || navigating || tLocked) return;
     tLocked = true;
-    setTimeout(function(){ tLocked = false; }, 750);
+    setTimeout(function(){ tLocked = false; }, 800);
     var dir = dy > 0 ? 1 : -1;
     var next = clamp(curPage + dir, 0, pages.length-1);
     if(next !== curPage) go(next);
@@ -1385,18 +1400,14 @@ body::after{
         Math.round(lerp(c0[1],c1[1],t)) + ',' +
         Math.round(lerp(c0[2],c1[2],t)) + ')';
 
-      // 4) darkness — skip during JS anim (onNav sets opacity on arrival)
-      if(!navigating){
-        var activeIdx = clamp(Math.round(st/vh), 0, pages.length-1);
-        pages.forEach(function(p, i){
-          var dist = Math.abs(i - activeIdx);
-          if(dist === 0){ p.style.opacity = '1'; }
-          else if(dist === 1){ p.style.opacity = '0.15'; }
-          else{ p.style.opacity = '0.05'; }
-          p.style.transform = '';
-          p.style.filter = '';
-        });
-      }
+      // 4) darkness — always run based on real scroll position
+      var activeIdx = clamp(Math.round(st/vh), 0, pages.length-1);
+      pages.forEach(function(p, i){
+        var dist = Math.abs(i - activeIdx);
+        p.style.opacity = dist === 0 ? '1' : dist === 1 ? '0.15' : '0.05';
+        p.style.transform = '';
+        p.style.filter = '';
+      });
 
       // 5) ghost/glow parallax — also fade through transitions
       pxEls.forEach(function(el){
@@ -1528,6 +1539,30 @@ body::after{
       });
     });
   })();
+
+  // ===== unified glow canvas =====
+  var gc1 = document.getElementById('gc1');
+  var gc2 = document.getElementById('gc2');
+  var glowConfigs = [{"c1": "rgba(46,230,200,.28)", "x1": 80, "y1": 10, "c2": "rgba(62,224,127,.18)", "x2": 10, "y2": 80}, {"c1": "rgba(46,230,200,.2)", "x1": 70, "y1": 20, "c2": "rgba(46,230,200,.1)", "x2": 20, "y2": 70}, {"c1": "rgba(46,230,200,.25)", "x1": 15, "y1": 10, "c2": "rgba(46,230,200,.1)", "x2": 75, "y2": 75}, {"c1": "rgba(192,132,252,.22)", "x1": 80, "y1": 10, "c2": "rgba(192,132,252,.1)", "x2": 10, "y2": 80}, {"c1": "rgba(62,224,127,.2)", "x1": 75, "y1": 80, "c2": "rgba(62,224,127,.1)", "x2": 20, "y2": 20}, {"c1": "rgba(46,230,200,.28)", "x1": 15, "y1": 10, "c2": "rgba(46,230,200,.12)", "x2": 75, "y2": 75}, {"c1": "rgba(46,230,200,.22)", "x1": 80, "y1": 80, "c2": "rgba(46,230,200,.1)", "x2": 15, "y2": 15}, {"c1": "rgba(62,224,127,.28)", "x1": 80, "y1": 10, "c2": "rgba(62,224,127,.12)", "x2": 15, "y2": 75}, {"c1": "rgba(62,224,127,.22)", "x1": 15, "y1": 80, "c2": "rgba(62,224,127,.1)", "x2": 75, "y2": 15}, {"c1": "rgba(245,169,127,.22)", "x1": 15, "y1": 10, "c2": "rgba(245,169,127,.1)", "x2": 75, "y2": 80}, {"c1": "rgba(59,130,246,.25)", "x1": 80, "y1": 10, "c2": "rgba(59,130,246,.1)", "x2": 15, "y2": 75}, {"c1": "rgba(59,130,246,.2)", "x1": 15, "y1": 10, "c2": "rgba(59,130,246,.1)", "x2": 75, "y2": 80}, {"c1": "rgba(192,132,252,.2)", "x1": 50, "y1": 20, "c2": "rgba(192,132,252,.08)", "x2": 50, "y2": 75}, {"c1": "rgba(3,199,90,.22)", "x1": 50, "y1": 80, "c2": "rgba(3,199,90,.08)", "x2": 50, "y2": 20}];
+  var sz1 = '500px', sz2 = '400px';
+  [gc1,gc2].forEach(function(g,i){
+    var sz = i===0 ? '500px' : '400px';
+    g.style.width = sz; g.style.height = sz;
+    g.style.marginLeft = '-'+(i===0?250:200)+'px';
+    g.style.marginTop  = '-'+(i===0?250:200)+'px';
+  });
+
+  function updateGlow(idx){
+    var cfg = glowConfigs[Math.min(idx, glowConfigs.length-1)];
+    if(!cfg) return;
+    gc1.style.background = cfg.c1;
+    gc1.style.left = cfg.x1 + '%';
+    gc1.style.top  = cfg.y1 + '%';
+    gc2.style.background = cfg.c2;
+    gc2.style.left = cfg.x2 + '%';
+    gc2.style.top  = cfg.y2 + '%';
+  }
+  updateGlow(0);
 })();
 </script>
 </body>
