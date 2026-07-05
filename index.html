@@ -24,11 +24,14 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
+html{--vh:1vh}
 body{
   font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
   background:var(--bg);color:var(--txt);
   font-size:17px;line-height:1.7;word-break:keep-all;
   -webkit-font-smoothing:antialiased;overflow:hidden;
+  overscroll-behavior:none;
+  touch-action:pan-y;
 }
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
@@ -36,18 +39,23 @@ img{max-width:100%;display:block}
 /* ===== fullpage scroller ===== */
 #pager{
   height:100vh;
-  height:100dvh;
+  height:calc(var(--vh) * 100);
   overflow-y:scroll;overflow-x:hidden;
-  scroll-snap-type:y proximity;
+  scroll-snap-type:y mandatory;
+  scroll-behavior:smooth;
   -webkit-overflow-scrolling:touch;
   overscroll-behavior-y:none;
+  touch-action:pan-y;
 }
+#pager.snap-free{scroll-snap-type:none}
 .page{
   height:100vh;
-  height:100dvh;
+  height:calc(var(--vh) * 100);
+  min-height:calc(var(--vh) * 100);
   position:relative;display:flex;flex-direction:column;justify-content:center;
   padding:40px 24px 40px;overflow:hidden;
   scroll-snap-align:start;
+  scroll-snap-stop:always;
 }
 .inner{max-width:560px;margin:0 auto;width:100%;position:relative;z-index:2}
 
@@ -331,11 +339,17 @@ details[open] .ans-wrap{grid-template-rows:1fr}
 /* enter animations per page — replay on every visit */
 .fx{
   opacity:0;transform:translateY(38px);filter:blur(6px);
+  -webkit-transform:translateY(38px);
+  -webkit-filter:blur(6px);
   transition:opacity .5s ease,transform .5s ease,filter .5s ease;
+  -webkit-transition:opacity .5s ease,-webkit-transform .5s ease,-webkit-filter .5s ease;
+  will-change:opacity,transform,filter;
 }
 .page.active .fx{
   opacity:1;transform:none;filter:blur(0);
+  -webkit-transform:none;-webkit-filter:blur(0);
   transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease);
+  -webkit-transition:opacity .9s var(--ease),-webkit-transform .9s var(--ease),-webkit-filter .9s var(--ease);
 }
 .page.active .fx.f2{transition-delay:.12s}
 .page.active .fx.f3{transition-delay:.24s}
@@ -379,7 +393,7 @@ details[open] .ans-wrap{grid-template-rows:1fr}
 
 /* feature rows rise one by one */
 .rows .row{opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
-.page.active .rows .row{opacity:1;transform:none}
+.page.active .rows .row{opacity:1;transform:none;-webkit-transform:none}
 .page.active .rows .row:nth-child(1){transition-delay:.45s}
 .page.active .rows .row:nth-child(2){transition-delay:.56s}
 .page.active .rows .row:nth-child(3){transition-delay:.67s}
@@ -388,7 +402,7 @@ details[open] .ans-wrap{grid-template-rows:1fr}
 
 /* gallery cards rise one by one */
 .gallery .card{opacity:0;transform:translateY(26px) scale(.97);transition:opacity .7s var(--ease),transform .7s var(--ease)}
-.page.active .gallery .card{opacity:1;transform:none}
+.page.active .gallery .card{opacity:1;transform:none;-webkit-transform:none}
 .page.active .gallery .card:nth-child(1){transition-delay:.4s}
 .page.active .gallery .card:nth-child(2){transition-delay:.53s}
 .page.active .gallery .card:nth-child(3){transition-delay:.66s}
@@ -1216,13 +1230,30 @@ body::after{
 <script>
 (function(){
   'use strict';
+  document.documentElement.classList.add('js');
+  var ua = navigator.userAgent || '';
+  var isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+  if(isSafari) document.documentElement.classList.add('is-safari');
   var reduce = false;
   try{ reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
   var pager = document.getElementById('pager');
   var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
   var curPage = 0;
+  var isTouching = false;
+  var scrollRaf = 0;
+  var snapTimer = null;
 
   function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+
+  function setViewportHeight(){
+    var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight || document.documentElement.clientHeight;
+    document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
+  }
+  setViewportHeight();
+  window.addEventListener('resize', setViewportHeight, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(setViewportHeight, 250); }, {passive:true});
+  window.addEventListener('pageshow', setViewportHeight, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', setViewportHeight, {passive:true});
 
   /* ============ 1. word-mask headline split ============ */
   try{
@@ -1281,14 +1312,31 @@ body::after{
   }catch(e){ console.warn('dots fail', e); }
 
   /* ============ 3. navigation (Safari-safe) ============ */
+  function pageTop(i){
+    return pages[i] ? pages[i].offsetTop : 0;
+  }
+
+  function scrollToPage(i, behavior){
+    if(!pages[i]) return;
+    var top = pageTop(i);
+    pager.classList.add('snap-free');
+    try{
+      pager.scrollTo({top:top, left:0, behavior:behavior || (reduce ? 'auto' : 'smooth')});
+    }catch(e){
+      pager.scrollTop = top;
+    }
+    setActive(i);
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(function(){
+      pager.scrollTop = top;
+      pager.classList.remove('snap-free');
+      setActive(i);
+    }, reduce ? 40 : 520);
+  }
+
   function goPage(i){
     if(!pages[i]) return;
-    try{
-      pages[i].scrollIntoView({behavior: reduce?'auto':'smooth', block:'start'});
-    }catch(e){
-      // old Safari: options object unsupported
-      pager.scrollTop = pages[i].offsetTop;
-    }
+    scrollToPage(i);
   }
   try{
     Array.prototype.slice.call(document.querySelectorAll('[data-go]')).forEach(function(a){
@@ -1362,6 +1410,23 @@ body::after{
     applyPageTheme(i);
   }
 
+  function nearestPage(){
+    var vh = pager.clientHeight || window.innerHeight || 1;
+    return clamp(Math.round(pager.scrollTop / vh), 0, pages.length-1);
+  }
+
+  function snapNearest(){
+    if(isTouching) return;
+    var idx = nearestPage();
+    var target = pageTop(idx);
+    if(Math.abs(pager.scrollTop - target) > 2){
+      scrollToPage(idx, reduce ? 'auto' : 'smooth');
+    }else{
+      pager.classList.remove('snap-free');
+      setActive(idx);
+    }
+  }
+
   var ioWorked = false;
   try{
     if('IntersectionObserver' in window){
@@ -1380,18 +1445,36 @@ body::after{
   /* Fallback + reinforcement: scroll-position based detection.
      Always runs — guarantees active class even if IO misbehaves (iOS Safari). */
   var scrollTimer = null;
+  pager.addEventListener('touchstart', function(){ isTouching = true; }, {passive:true});
+  pager.addEventListener('touchend', function(){
+    isTouching = false;
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(snapNearest, 90);
+  }, {passive:true});
   pager.addEventListener('scroll', function(){
+    if(!scrollRaf){
+      scrollRaf = requestAnimationFrame(function(){
+        scrollRaf = 0;
+        setActive(nearestPage());
+      });
+    }
     if(scrollTimer) clearTimeout(scrollTimer);
     scrollTimer = setTimeout(function(){
-      var vh = pager.clientHeight || window.innerHeight;
-      var idx = clamp(Math.round(pager.scrollTop / vh), 0, pages.length-1);
-      setActive(idx);
+      setActive(nearestPage());
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(snapNearest, isSafari ? 120 : 80);
     }, 80);
   }, {passive:true});
+  if('onscrollend' in window){
+    pager.addEventListener('scrollend', snapNearest, {passive:true});
+  }
 
   /* initial */
   setActive(0);
   pages[0].classList.add('active');
+  requestAnimationFrame(function(){ setActive(nearestPage()); });
+  setTimeout(function(){ setViewportHeight(); setActive(nearestPage()); }, 120);
+  setTimeout(function(){ setViewportHeight(); snapNearest(); }, 500);
 
   /* ============ 6. gallery auto-flow + drag ============ */
   try{
@@ -1399,14 +1482,17 @@ body::after{
     allScrollable.forEach(function(gal){
       var cards = gal.querySelectorAll('.card, .pt');
       if(!cards.length) return;
-      var pos = 0, speed = 0.55, dragging = false, maxScroll = 0;
+      var pos = 0, speed = isSafari ? 0.42 : 0.55, dragging = false, maxScroll = 0, lastTick = 0;
       var isDown = false, startX = 0, scrollStart = 0, lastX = 0, vel = 0;
 
-      function measure(){ maxScroll = gal.scrollWidth - gal.clientWidth; }
+      function measure(){ maxScroll = Math.max(0, gal.scrollWidth - gal.clientWidth); }
 
-      function tick(){
-        if(!dragging && maxScroll > 0){
-          pos += speed;
+      function tick(now){
+        if(!lastTick) lastTick = now || 0;
+        var dt = Math.min(34, (now || lastTick) - lastTick);
+        lastTick = now || lastTick;
+        if(!dragging && maxScroll > 0 && !document.hidden){
+          pos += speed * Math.max(1, dt / 16.7);
           if(pos >= maxScroll) pos = 0;
           gal.scrollLeft = pos;
         }
@@ -1457,6 +1543,9 @@ body::after{
 
       measure();
       window.addEventListener('resize', measure);
+      window.addEventListener('load', measure);
+      setTimeout(measure, 250);
+      setTimeout(measure, 900);
       if(!reduce) requestAnimationFrame(tick);
     });
   }catch(e){ console.warn('gallery fail', e); }
