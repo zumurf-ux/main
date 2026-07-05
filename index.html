@@ -77,34 +77,41 @@ img{max-width:100%;display:block}
 
 /* progress dots */
 .dots{
-  position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:80;
-  display:flex;flex-direction:column;gap:10px;
+  position:fixed;right:14px;top:50%;transform:translate3d(0,-50%,0);z-index:80;
+  display:flex;flex-direction:column;gap:3px;
   align-items:flex-end;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
 }
 .dots button{
-  width:6px;height:6px;border-radius:50%;border:none;background:rgba(255,255,255,.22);
-  cursor:pointer;transition:all .4s var(--ease);padding:0;
-  position:relative;display:flex;align-items:center;justify-content:flex-end;
+  width:8px;height:18px;border:none;background:transparent;
+  cursor:pointer;padding:0;
+  position:relative;display:flex;align-items:center;justify-content:center;
 }
-.dots button.on{height:22px;border-radius:99px;background:var(--txt)}
+.dots button::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,.22);
+}
+.dots button.on::before{
+  height:18px;border-radius:99px;background:var(--txt);
+}
 .dot-label{
-  position:absolute;right:16px;
+  position:absolute;right:18px;
   font-size:10px;font-weight:700;letter-spacing:.04em;
   white-space:nowrap;pointer-events:none;
   color:var(--txt);
   text-shadow:0 1px 8px rgba(0,0,0,.8);
-  opacity:0;transform:translateX(4px);
+  opacity:0;transform:none;
   transition:none;
 }
-/* When active: slide in then auto-fade */
 .dots button.on .dot-label{
-  animation:labelshow 2.4s var(--ease) forwards;
+  animation:labelshow 2.6s ease forwards;
 }
 @keyframes labelshow{
-  0%  {opacity:0;transform:translateX(6px)}
-  12% {opacity:1;transform:none}
-  68% {opacity:1;transform:none}
-  100%{opacity:0;transform:translateX(-2px)}
+  0%  {opacity:0}
+  12% {opacity:.96}
+  72% {opacity:.96}
+  100%{opacity:0}
 }
 
 /* header */
@@ -549,8 +556,7 @@ body::after{
   .idx a{padding:8px 2px}
   .row{padding:9px 2px}
   .card{min-height:340px}
-  .dots{gap:7px}
-  .dots button.on{height:18px}
+  .dots{gap:3px}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -682,8 +688,8 @@ body::after{
 <nav class="dots" id="dots" aria-label="페이지 이동"></nav>
 
 <div id="glow-canvas" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden">
-  <div id="gc1" style="position:absolute;border-radius:50%;filter:blur(90px);transition:all 1.4s ease;will-change:transform,background,opacity"></div>
-  <div id="gc2" style="position:absolute;border-radius:50%;filter:blur(110px);transition:all 1.6s ease;will-change:transform,background,opacity"></div>
+  <div id="gc1" style="position:absolute;border-radius:50%;filter:blur(90px);transition:background-color .8s ease,opacity .8s ease;will-change:background,opacity"></div>
+  <div id="gc2" style="position:absolute;border-radius:50%;filter:blur(110px);transition:background-color .8s ease,opacity .8s ease;will-change:background,opacity"></div>
 </div>
 <main id="pager">
 
@@ -1286,6 +1292,8 @@ body::after{
   var scrollRaf = 0;
   var snapTimer = null;
   var navLocked = false;
+  var programmatic = false;
+  var lastViewportHeight = 0;
   var touchStartX = 0;
   var touchStartY = 0;
   var touchLastX = 0;
@@ -1295,13 +1303,18 @@ body::after{
 
   function setViewportHeight(){
     var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight || document.documentElement.clientHeight;
+    if(lastViewportHeight && Math.abs(h - lastViewportHeight) < 2) return;
+    lastViewportHeight = h;
     document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
   }
   setViewportHeight();
   window.addEventListener('resize', setViewportHeight, {passive:true});
   window.addEventListener('orientationchange', function(){ setTimeout(setViewportHeight, 250); }, {passive:true});
   window.addEventListener('pageshow', setViewportHeight, {passive:true});
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', setViewportHeight, {passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){
+    if(navLocked) return;
+    setViewportHeight();
+  }, {passive:true});
   if(isSafari) reduce = false;
 
   /* ============ 1. word-mask headline split ============ */
@@ -1371,9 +1384,10 @@ body::after{
     var top = pageTop(i);
     if(navLocked && i !== curPage) return;
     navLocked = true;
+    programmatic = true;
     pager.classList.add('snap-free');
     try{
-      pager.scrollTo({top:top, left:0, behavior:behavior || (reduce ? 'auto' : 'smooth')});
+      pager.scrollTo({top:top, left:0, behavior:'auto'});
     }catch(e){
       pager.scrollTop = top;
     }
@@ -1383,8 +1397,9 @@ body::after{
       pager.scrollTop = top;
       pager.classList.remove('snap-free');
       setActive(i);
+      programmatic = false;
       navLocked = false;
-    }, reduce ? 80 : 620);
+    }, 120);
   }
 
   function goPage(i){
@@ -1539,6 +1554,7 @@ body::after{
     }
   }, {passive:true});
   pager.addEventListener('scroll', function(){
+    if(programmatic) return;
     if(!scrollRaf){
       scrollRaf = requestAnimationFrame(function(){
         scrollRaf = 0;
