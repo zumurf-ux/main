@@ -40,13 +40,16 @@ img{max-width:100%;display:block}
 #pager{
   height:100vh;
   height:calc(var(--vh) * 100);
-  overflow-y:scroll;overflow-x:hidden;
-  scroll-snap-type:y mandatory;
-  scroll-behavior:smooth;
-  -webkit-overflow-scrolling:touch;
+  overflow-y:hidden;overflow-x:hidden;
+  scroll-snap-type:none;
+  scroll-behavior:auto;
+  -webkit-overflow-scrolling:auto;
   overscroll-behavior-y:none;
   touch-action:pan-y;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
 }
+#pager::-webkit-scrollbar{display:none;width:0;height:0}
 #pager.snap-free{scroll-snap-type:none}
 .page{
   height:100vh;
@@ -54,8 +57,8 @@ img{max-width:100%;display:block}
   min-height:calc(var(--vh) * 100);
   position:relative;display:flex;flex-direction:column;justify-content:center;
   padding:40px 24px 40px;overflow:hidden;
-  scroll-snap-align:start;
-  scroll-snap-stop:always;
+  scroll-snap-align:none;
+  scroll-snap-stop:normal;
 }
 .inner{max-width:560px;margin:0 auto;width:100%;position:relative;z-index:2}
 
@@ -511,12 +514,12 @@ body::after{
 }
 
 @media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  .fx{opacity:1!important;transform:none!important;filter:none!important}
-  .rows .row,.gallery .card{opacity:1!important;transform:none!important}
-  .w i{transform:none!important}
-  #pager{scroll-behavior:auto}
-  .ghost,.glow{transform:translate(-50%,-50%)!important}
+  html:not(.force-motion) *,html:not(.force-motion) *::before,html:not(.force-motion) *::after{animation:none!important;transition:none!important}
+  html:not(.force-motion) .fx{opacity:1!important;transform:none!important;filter:none!important}
+  html:not(.force-motion) .rows .row,html:not(.force-motion) .gallery .card{opacity:1!important;transform:none!important}
+  html:not(.force-motion) .w i{transform:none!important}
+  html:not(.force-motion) #pager{scroll-behavior:auto}
+  html:not(.force-motion) .ghost,html:not(.force-motion) .glow{transform:translate(-50%,-50%)!important}
 }
 
 /* ===== portfolio section ===== */
@@ -1233,7 +1236,7 @@ body::after{
   document.documentElement.classList.add('js');
   var ua = navigator.userAgent || '';
   var isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
-  if(isSafari) document.documentElement.classList.add('is-safari');
+  if(isSafari) document.documentElement.classList.add('is-safari','force-motion');
   var reduce = false;
   try{ reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
   var pager = document.getElementById('pager');
@@ -1242,6 +1245,11 @@ body::after{
   var isTouching = false;
   var scrollRaf = 0;
   var snapTimer = null;
+  var navLocked = false;
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchLastX = 0;
+  var touchLastY = 0;
 
   function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 
@@ -1254,6 +1262,7 @@ body::after{
   window.addEventListener('orientationchange', function(){ setTimeout(setViewportHeight, 250); }, {passive:true});
   window.addEventListener('pageshow', setViewportHeight, {passive:true});
   if(window.visualViewport) window.visualViewport.addEventListener('resize', setViewportHeight, {passive:true});
+  if(isSafari) reduce = false;
 
   /* ============ 1. word-mask headline split ============ */
   try{
@@ -1317,8 +1326,11 @@ body::after{
   }
 
   function scrollToPage(i, behavior){
+    i = clamp(i, 0, pages.length-1);
     if(!pages[i]) return;
     var top = pageTop(i);
+    if(navLocked && i !== curPage) return;
+    navLocked = true;
     pager.classList.add('snap-free');
     try{
       pager.scrollTo({top:top, left:0, behavior:behavior || (reduce ? 'auto' : 'smooth')});
@@ -1331,11 +1343,13 @@ body::after{
       pager.scrollTop = top;
       pager.classList.remove('snap-free');
       setActive(i);
-    }, reduce ? 40 : 520);
+      navLocked = false;
+    }, reduce ? 80 : 620);
   }
 
   function goPage(i){
-    if(!pages[i]) return;
+    i = clamp(i, 0, pages.length-1);
+    if(i === curPage && Math.abs(pager.scrollTop - pageTop(i)) < 2) return;
     scrollToPage(i);
   }
   try{
@@ -1420,7 +1434,7 @@ body::after{
     var idx = nearestPage();
     var target = pageTop(idx);
     if(Math.abs(pager.scrollTop - target) > 2){
-      scrollToPage(idx, reduce ? 'auto' : 'smooth');
+      scrollToPage(idx, 'auto');
     }else{
       pager.classList.remove('snap-free');
       setActive(idx);
@@ -1445,11 +1459,44 @@ body::after{
   /* Fallback + reinforcement: scroll-position based detection.
      Always runs — guarantees active class even if IO misbehaves (iOS Safari). */
   var scrollTimer = null;
-  pager.addEventListener('touchstart', function(){ isTouching = true; }, {passive:true});
+  function inHorizontalScroller(el){
+    return !!(el && el.closest && el.closest('.gallery, .port-thumbs'));
+  }
+  function stepPage(dir){
+    if(navLocked) return;
+    goPage(curPage + dir);
+  }
+  pager.addEventListener('wheel', function(e){
+    if(inHorizontalScroller(e.target) && Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return;
+    if(Math.abs(e.deltaY) < 8) return;
+    e.preventDefault();
+    stepPage(e.deltaY > 0 ? 1 : -1);
+  }, {passive:false});
+  pager.addEventListener('touchstart', function(e){
+    isTouching = true;
+    if(e.touches && e.touches.length){
+      touchStartX = touchLastX = e.touches[0].clientX;
+      touchStartY = touchLastY = e.touches[0].clientY;
+    }
+  }, {passive:true});
+  pager.addEventListener('touchmove', function(e){
+    if(!e.touches || !e.touches.length) return;
+    touchLastX = e.touches[0].clientX;
+    touchLastY = e.touches[0].clientY;
+    var dx = touchLastX - touchStartX;
+    var dy = touchLastY - touchStartY;
+    if(inHorizontalScroller(e.target) && Math.abs(dx) > Math.abs(dy)) return;
+    if(Math.abs(dy) > 6) e.preventDefault();
+  }, {passive:false});
   pager.addEventListener('touchend', function(){
     isTouching = false;
-    clearTimeout(snapTimer);
-    snapTimer = setTimeout(snapNearest, 90);
+    var dx = touchLastX - touchStartX;
+    var dy = touchLastY - touchStartY;
+    if(Math.abs(dy) > 42 && Math.abs(dy) > Math.abs(dx) * 1.15){
+      stepPage(dy < 0 ? 1 : -1);
+    }else{
+      snapNearest();
+    }
   }, {passive:true});
   pager.addEventListener('scroll', function(){
     if(!scrollRaf){
@@ -1461,20 +1508,27 @@ body::after{
     if(scrollTimer) clearTimeout(scrollTimer);
     scrollTimer = setTimeout(function(){
       setActive(nearestPage());
-      clearTimeout(snapTimer);
-      snapTimer = setTimeout(snapNearest, isSafari ? 120 : 80);
     }, 80);
   }, {passive:true});
-  if('onscrollend' in window){
-    pager.addEventListener('scrollend', snapNearest, {passive:true});
-  }
+  window.addEventListener('keydown', function(e){
+    if(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if(e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' '){
+      e.preventDefault(); stepPage(1);
+    }else if(e.key === 'ArrowUp' || e.key === 'PageUp'){
+      e.preventDefault(); stepPage(-1);
+    }else if(e.key === 'Home'){
+      e.preventDefault(); goPage(0);
+    }else if(e.key === 'End'){
+      e.preventDefault(); goPage(pages.length-1);
+    }
+  }, {passive:false});
 
   /* initial */
   setActive(0);
   pages[0].classList.add('active');
   requestAnimationFrame(function(){ setActive(nearestPage()); });
   setTimeout(function(){ setViewportHeight(); setActive(nearestPage()); }, 120);
-  setTimeout(function(){ setViewportHeight(); snapNearest(); }, 500);
+  setTimeout(function(){ setViewportHeight(); pager.scrollTop = pageTop(curPage); navLocked = false; setActive(curPage); }, 500);
 
   /* ============ 6. gallery auto-flow + drag ============ */
   try{
