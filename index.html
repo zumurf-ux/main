@@ -35,14 +35,15 @@ img{max-width:100%;display:block}
 
 /* ===== fullpage scroller ===== */
 #pager{
-  height:100dvh;overflow-y:scroll;overflow-x:hidden;
+  overflow-y:scroll;overflow-x:hidden;
   scroll-behavior:auto;
   overscroll-behavior-y:none;
+  /* height set by JS */
 }
 .page{
-  height:100dvh;
   position:relative;display:flex;flex-direction:column;justify-content:center;
   padding:40px 24px 40px;overflow:hidden;
+  /* height set by JS to window.innerHeight for iOS Safari accuracy */
 }
 .inner{max-width:560px;margin:0 auto;width:100%;position:relative;z-index:2}
 
@@ -1212,6 +1213,24 @@ body::after{
 (function(){
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // ===== iOS Safari fix: use window.innerHeight for true viewport height =====
+  var VH = window.innerHeight;
+  function setHeights(){
+    VH = window.innerHeight;
+    document.getElementById('pager').style.height = VH + 'px';
+    document.querySelectorAll('.page').forEach(function(p){
+      p.style.height = VH + 'px';
+    });
+  }
+  setHeights();
+  // Re-measure after address bar collapses (iOS fires resize)
+  window.addEventListener('resize', function(){
+    setTimeout(setHeights, 100);
+  });
+  window.addEventListener('orientationchange', function(){
+    setTimeout(setHeights, 300);
+  });
+
   // ===== split headlines into masked words for reveal motion =====
   function splitWords(el, inheritCls){
     Array.prototype.slice.call(el.childNodes).forEach(function(n){
@@ -1272,12 +1291,12 @@ body::after{
 
   // header: show on p0, hide briefly during nav, reappear
   function go(i){
-    if(reduce){ pager.scrollTop = pages[i].offsetTop; onNav(i); return; }
+    if(reduce){ pager.scrollTop = i * VH; onNav(i); return; }
     var start = pager.scrollTop;
-    var target = pages[i].offsetTop;
-    var dur = 680; // ms
+    var target = i * VH;  // use VH directly — pages are exactly VH tall
+    var dur = 620;
     var t0 = null;
-    function ease(t){ return t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; } // ease-in-out-cubic
+    function ease(t){ return t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
     function step(ts){
       if(!t0) t0 = ts;
       var p = Math.min((ts-t0)/dur, 1);
@@ -1286,6 +1305,7 @@ body::after{
       else { navigating = false; onNav(i); }
     }
     navigating = true;
+    onNav(i); // trigger active class & animations IMMEDIATELY at start
     requestAnimationFrame(step);
   }
 
@@ -1309,6 +1329,8 @@ body::after{
   // Immediately show first page bright before rAF starts
   pages[0].style.opacity = '1';
   for(var _i=1;_i<pages.length;_i++) pages[_i].style.opacity='0.05';
+  // Ensure pager starts at exact top
+  pager.scrollTop = 0;
 
   document.querySelectorAll('[data-go]').forEach(function(a){
     a.addEventListener('click',function(e){
@@ -1360,7 +1382,7 @@ body::after{
     var dx = Math.abs(e.changedTouches[0].clientX - tX0);
     tY0 = null; tX0 = null;
     // ignore horizontal swipes, require 50px vertical, no snap if already navigating
-    if(dx > Math.abs(dy)*0.7 || Math.abs(dy) < 50 || navigating || tLocked) return;
+    if(dx > Math.abs(dy)*1.2 || Math.abs(dy) < 30 || navigating || tLocked) return;
     tLocked = true;
     setTimeout(function(){ tLocked = false; }, 800);
     var dir = dy > 0 ? 1 : -1;
@@ -1386,7 +1408,7 @@ body::after{
     var ticking = false;
 
     function frame(){
-      var vh = pager.clientHeight;
+      var vh = VH;
       var st = pager.scrollTop;
 
       // 1) background tint lerp between sections
