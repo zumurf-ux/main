@@ -1298,11 +1298,9 @@ body::after{
     });
     if(pages[curPage-1]) pages[curPage-1].classList.add('exit-up');
     updateGlow(curPage);
-    // Force immediate opacity based on position (no rAF delay)
-    var st = pager.scrollTop, vh = pager.clientHeight;
-    var activeIdx = clamp(Math.round(st/vh), 0, pages.length-1);
+    // Force immediate opacity via curPage
     pages.forEach(function(p,j){
-      var dist = Math.abs(j - activeIdx);
+      var dist = Math.abs(j - curPage);
       p.style.opacity = dist===0 ? '1' : dist===1 ? '0.15' : '0.05';
     });
   }
@@ -1400,13 +1398,10 @@ body::after{
         Math.round(lerp(c0[1],c1[1],t)) + ',' +
         Math.round(lerp(c0[2],c1[2],t)) + ')';
 
-      // 4) darkness — always run based on real scroll position
-      var activeIdx = clamp(Math.round(st/vh), 0, pages.length-1);
+      // 4) darkness — driven by curPage (stable), not scrollTop math
       pages.forEach(function(p, i){
-        var dist = Math.abs(i - activeIdx);
+        var dist = Math.abs(i - curPage);
         p.style.opacity = dist === 0 ? '1' : dist === 1 ? '0.15' : '0.05';
-        p.style.transform = '';
-        p.style.filter = '';
       });
 
       // 5) ghost/glow parallax — also fade through transitions
