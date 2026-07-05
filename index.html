@@ -87,13 +87,15 @@ img{max-width:100%;display:block}
   width:7px;height:14px;border:none;background:transparent;
   cursor:pointer;padding:0;
   position:relative;display:flex;align-items:center;justify-content:center;
+  --dot-alpha:.025;
 }
 .dots button::before{
   content:"";width:4px;height:4px;border-radius:50%;
-  background:rgba(255,255,255,.22);
+  background:rgba(255,255,255,var(--dot-alpha));
 }
 .dots button.on::before{
   height:14px;border-radius:99px;background:var(--txt);
+  box-shadow:0 0 8px rgba(255,255,255,.28);
 }
 .dot-label{
   position:absolute;right:14px;
@@ -1475,7 +1477,13 @@ body::after{
       if(j===i) p.classList.add('active');
       else p.classList.remove('active');
     });
-    dots.forEach(function(d,j){ d.classList.toggle('on', j===i); });
+    dots.forEach(function(d,j){
+      var dist = Math.abs(j - i);
+      var alphaMap = [1, .72, .48, .26, .14, .075, .04, .025];
+      var alpha = alphaMap[Math.min(dist, alphaMap.length - 1)];
+      d.style.setProperty('--dot-alpha', alpha.toFixed(2));
+      d.classList.toggle('on', j===i);
+    });
     applyPageTheme(i);
   }
 
