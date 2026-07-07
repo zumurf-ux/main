@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>디자인하는삼촌</title>
+    <link>https://thedesignuncle.com/</link>
+    <description>디자인과 소프트웨어를 함께 만드는 브랜드. 고시ONE, 인건비서 등 사장님을 위한 자동화 솔루션과 매장 디자인을 만듭니다.</description>
+    <language>ko</language>
+    <lastBuildDate>Tue, 07 Jul 2026 00:00:00 +0900</lastBuildDate>
+    <item>
+      <title>디자인하는삼촌 대표 페이지</title>
+      <link>https://thedesignuncle.com/</link>
+      <guid>https://thedesignuncle.com/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 +0900</pubDate>
+      <description>고시ONE, 인건비서, 브랜드 디자인, 매장 홍보물, 앱·웹 UI, 자동화 솔루션을 소개합니다.</description>
+    </item>
+    <item>
+      <title>디자인하는삼촌 소개</title>
+      <link>https://thedesignuncle.com/about.html</link>
+      <guid>https://thedesignuncle.com/about.html</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 +0900</pubDate>
+      <description>디자인과 소프트웨어를 함께 만드는 디자인하는삼촌 브랜드 소개입니다.</description>
+    </item>
+    <item>
+      <title>디자인하는삼촌 포트폴리오</title>
+      <link>https://thedesignuncle.com/portfolio.html</link>
+      <guid>https://thedesignuncle.com/portfolio.html</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 +0900</pubDate>
+      <description>브랜드 디자인, 매장 홍보물, 상세페이지, SNS 콘텐츠, 앱·웹 UI 포트폴리오입니다.</description>
+    </item>
+    <item>
+      <title>디자인하는삼촌 소프트웨어</title>
+      <link>https://thedesignuncle.com/software.html</link>
+      <guid>https://thedesignuncle.com/software.html</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 +0900</pubDate>
+      <description>고시ONE, 인건비서 등 사장님을 위한 운영 자동화 솔루션을 소개합니다.</description>
+    </item>
+    <item>
+      <title>디자인하는삼촌 문의</title>
+      <link>https://thedesignuncle.com/contact.html</link>
+      <guid>https://thedesignuncle.com/contact.html</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 +0900</pubDate>
+      <description>브랜드 디자인, 매장 홍보물, 소프트웨어 제작 상담 문의 페이지입니다.</description>
+    </item>
+  </channel>
+</rss>
