@@ -97,9 +97,17 @@ footer{padding:42px 0 55px;border-top:1px solid var(--line);background:#06080c;c
 .foot-title strong{margin-bottom:0}
 footer{padding:34px 0 38px}
 @media(max-width:600px){
-  footer{padding:26px 0 30px}
-  .foot-title{margin-bottom:5px}
-  .foot-links{margin-top:14px}
+  footer{padding:14px 0 16px}
+  footer .foot{font-size:12px;line-height:1.4}
+  .foot-title{gap:8px;margin-bottom:3px}
+  .foot-title .foot-logo{
+    width:28px;
+    height:28px;
+    flex-basis:28px;
+    border-radius:8px;
+  }
+  .foot p[style]{margin-top:5px!important}
+  .foot-links{gap:12px;margin-top:8px}
 }
 </style>
 </head>
