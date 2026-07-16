@@ -201,6 +201,7 @@ section{padding:130px 0}
 }
 .gal::-webkit-scrollbar{display:none}
 .gal-card{flex:0 0 240px;scroll-snap-align:center;text-align:center}
+.gal-card:nth-child(6){display:none}
 .gal-card:first-child{margin-left:max(24px,calc(50vw - 550px))}
 .gal-card:last-child{margin-right:max(24px,calc(50vw - 550px))}
 .gal-card .phone{max-width:250px;margin:0 auto 12px}
@@ -291,11 +292,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px;color:var(--ink-soft
 .reveal.d1{transition-delay:.08s}
 .reveal.d2{transition-delay:.16s}
 .reveal.d3{transition-delay:.24s}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  .reveal{opacity:1;transform:none}
-  html{scroll-behavior:auto}
-}
+/* iOS의 '동작 줄이기'가 켜져 있어도 이 페이지의 핵심 텍스트 효과는 유지한다. */
 
 /* ---------- responsive ---------- */
 @media (max-width:960px){
@@ -505,7 +502,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px;color:var(--ink-soft
 <section class="sec-gray" id="screens" style="padding-bottom:90px">
   <div class="sec-head reveal">
     <span class="kicker">실제 앱 화면</span>
-    <h2 class="title">설치 첫날 보게 될<br>일곱 개의 화면입니다.</h2>
+    <h2 class="title">설치 첫날 보게 될<br>여섯 개의 화면입니다.</h2>
   </div>
   <div class="gal reveal">
     <div class="gal-card">
@@ -691,7 +688,8 @@ if ('IntersectionObserver' in window) {
 }
 
 // count-up numbers (Framer)
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// iOS의 '동작 줄이기' 설정 때문에 숫자 효과까지 사라지지 않도록 항상 재생한다.
+const reduced = false;
 const fmt = (el, v) => {
   el.textContent = el.dataset.format === 'comma' ? Math.round(v).toLocaleString() : Math.round(v);
 };
