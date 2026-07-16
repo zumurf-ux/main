@@ -342,6 +342,49 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px;color:var(--ink-soft
   html{scroll-behavior:auto}
 }
 
+
+/* ---------- iPhone Safari compatibility ---------- */
+.reveal{
+  -webkit-transform:translate3d(0,34px,0) scale(.985);
+  transform:translate3d(0,34px,0) scale(.985);
+  -webkit-transition:opacity .9s cubic-bezier(.2,.7,.2,1),
+                     -webkit-transform .9s cubic-bezier(.2,.7,.2,1);
+  transition:opacity .9s cubic-bezier(.2,.7,.2,1),
+             transform .9s cubic-bezier(.2,.7,.2,1);
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  will-change:opacity,transform;
+}
+.reveal.in{
+  opacity:1;
+  -webkit-transform:translate3d(0,0,0) scale(1);
+  transform:translate3d(0,0,0) scale(1);
+}
+
+/* iPhone의 '동작 줄이기'가 켜져 있어도 콘텐츠가 사라지지 않게 함 */
+@media (prefers-reduced-motion:reduce){
+  .reveal{
+    opacity:1!important;
+    -webkit-transform:none!important;
+    transform:none!important;
+  }
+}
+
+/* 마지막 스마트스토어 구매 버튼: 모바일 한 줄 유지 */
+.final .btn{
+  white-space:nowrap;
+  max-width:100%;
+}
+@media (max-width:560px){
+  .final .btn-xl{
+    width:100%;
+    padding:16px 14px;
+    font-size:15.5px;
+    letter-spacing:-.03em;
+    white-space:nowrap;
+  }
+}
+
 /* ---------- responsive ---------- */
 @media (max-width:960px){
   section,.show{padding:96px 0}
@@ -706,30 +749,124 @@ footer{border-top:1px solid var(--line);padding:44px 0 56px;color:var(--ink-soft
 </footer>
 
 <script>
-// framer-style staggered reveal
-const io = new IntersectionObserver(es => es.forEach(e => {
-  if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-}), {threshold:.12});
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+(function () {
+  function showAllRevealElements() {
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      el.classList.add('in');
+    });
+  }
 
-// count-up numbers (Framer)
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const fmt = (el, v) => {
-  el.textContent = el.dataset.format === 'comma' ? Math.round(v).toLocaleString() : Math.round(v);
-};
-const cio = new IntersectionObserver(es => es.forEach(e => {
-  if (!e.isIntersecting) return;
-  cio.unobserve(e.target);
-  const el = e.target, target = parseFloat(el.dataset.count);
-  if (reduced || target === 0) { fmt(el, target); return; }
-  const dur = 1400, t0 = performance.now();
-  (function tick(t){
-    const p = Math.min(1, (t - t0)/dur);
-    fmt(el, target * (1 - Math.pow(1 - p, 3)));
-    if (p < 1) requestAnimationFrame(tick);
-  })(t0);
-}), {threshold:.6});
-document.querySelectorAll('[data-count]').forEach(el => cio.observe(el));
+  function initRevealAnimations() {
+    var revealElements = document.querySelectorAll('.reveal');
+
+    // 구형 iOS Safari 또는 인앱 브라우저 대응
+    if (!('IntersectionObserver' in window)) {
+      showAllRevealElements();
+      return;
+    }
+
+    var io = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting || entry.intersectionRatio > 0) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '0px 0px -4% 0px',
+      threshold: 0.01
+    });
+
+    revealElements.forEach(function (el) {
+      io.observe(el);
+    });
+
+    // Safari가 첫 프레임에서 교차 판정을 놓치는 경우를 위한 안전장치
+    window.setTimeout(function () {
+      document.querySelectorAll('.reveal:not(.in)').forEach(function (el) {
+        var rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 1.15 && rect.bottom > 0) {
+          el.classList.add('in');
+          io.unobserve(el);
+        }
+      });
+    }, 500);
+  }
+
+  function initCountUp() {
+    var countElements = document.querySelectorAll('[data-count]');
+    var reduced = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function formatValue(el, value) {
+      el.textContent = el.dataset.format === 'comma'
+        ? Math.round(value).toLocaleString()
+        : Math.round(value);
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      countElements.forEach(function (el) {
+        formatValue(el, parseFloat(el.dataset.count));
+      });
+      return;
+    }
+
+    var countObserver = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+
+        observer.unobserve(entry.target);
+        var el = entry.target;
+        var target = parseFloat(el.dataset.count);
+
+        if (reduced || target === 0) {
+          formatValue(el, target);
+          return;
+        }
+
+        var duration = 1400;
+        var start = performance.now();
+
+        function tick(now) {
+          var progress = Math.min(1, (now - start) / duration);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          formatValue(el, target * eased);
+          if (progress < 1) {
+            window.requestAnimationFrame(tick);
+          }
+        }
+
+        window.requestAnimationFrame(tick);
+      });
+    }, {
+      rootMargin: '0px 0px -4% 0px',
+      threshold: 0.05
+    });
+
+    countElements.forEach(function (el) {
+      countObserver.observe(el);
+    });
+  }
+
+  function init() {
+    initRevealAnimations();
+    initCountUp();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+
+  // Safari 뒤로가기 캐시 복원 시 애니메이션 요소가 숨는 현상 방지
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      showAllRevealElements();
+    }
+  });
+})();
 </script>
 </body>
 </html>
