@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="force-motion">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -123,7 +123,52 @@ footer{padding:35px 0 40px;border-top:1px solid rgba(107,154,232,.1);background:
   .service-grid{gap:8px}.service-copy{padding:25px 20px;border-radius:18px}.service-copy h3{font-size:25px}.service-copy>p{font-size:12px}.service-detail{gap:7px;padding:8px}.detail{min-height:165px;padding:17px;border-radius:14px}.detail h4{font-size:13px}.detail p{font-size:9px}
   .cta-panel{grid-template-columns:1fr;gap:22px;padding:29px 20px;border-radius:19px}.cta-panel h2{font-size:31px}.cta-panel .btn{width:100%}.faq{border-radius:17px}.faq summary{padding:19px 17px;font-size:13px}.faq summary::after{right:17px}.answer{padding:0 40px 19px 17px;font-size:11px}.footer-in{display:block}.footer-links{margin-top:22px;gap:13px}
 }
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-title-back,.hero-title-back span,.stand-title-line,.hero-product,.hero-scan,.hero-callout,.hero-lower p,.signal i,.live-badge,.live-badge i,.hero-actions,.grad,.card::after,.reveal.show.step,.reveal.show.visual-shot img,.control-card.show .display-item,.reveal.show *{animation:none!important}.reveal{opacity:1;filter:none;transform:none;transition:none}.card{transition:none}}
+/* iPhone Safari: blur 기반 reveal 대신 GPU 가속 이동 효과를 사용합니다. */
+@supports (-webkit-touch-callout:none){
+  .hero-title-back,.hero-title-back span,.hero-product,.hero-scan,.hero-callout,
+  .hero-lower p,.hero-actions,.live-badge,.signal i,.stand-title-line,.card::after{
+    -webkit-backface-visibility:hidden;
+    backface-visibility:hidden;
+    will-change:transform,opacity;
+  }
+  .reveal{
+    opacity:0;
+    -webkit-filter:none;
+    filter:none;
+    -webkit-transform:translate3d(0,32px,0) scale(.975);
+    transform:translate3d(0,32px,0) scale(.975);
+    -webkit-transition:opacity .8s ease,-webkit-transform .85s cubic-bezier(.16,.8,.2,1);
+    transition:opacity .8s ease,transform .85s cubic-bezier(.16,.8,.2,1);
+    will-change:transform,opacity;
+  }
+  .reveal.show{
+    opacity:1;
+    -webkit-transform:translate3d(0,0,0) scale(1);
+    transform:translate3d(0,0,0) scale(1);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  html:not(.force-motion){scroll-behavior:auto}
+  html:not(.force-motion) .hero-title-back,
+  html:not(.force-motion) .hero-title-back span,
+  html:not(.force-motion) .stand-title-line,
+  html:not(.force-motion) .hero-product,
+  html:not(.force-motion) .hero-scan,
+  html:not(.force-motion) .hero-callout,
+  html:not(.force-motion) .hero-lower p,
+  html:not(.force-motion) .signal i,
+  html:not(.force-motion) .live-badge,
+  html:not(.force-motion) .live-badge i,
+  html:not(.force-motion) .hero-actions,
+  html:not(.force-motion) .grad,
+  html:not(.force-motion) .card::after,
+  html:not(.force-motion) .reveal.show.step,
+  html:not(.force-motion) .reveal.show.visual-shot img,
+  html:not(.force-motion) .control-card.show .display-item,
+  html:not(.force-motion) .reveal.show *{animation:none!important}
+  html:not(.force-motion) .reveal{opacity:1;filter:none;transform:none;transition:none}
+  html:not(.force-motion) .card{transition:none}
+}
 </style>
 </head>
 <body>
@@ -242,11 +287,41 @@ footer{padding:35px 0 40px;border-top:1px solid rgba(107,154,232,.1);background:
 
 <script>
 (function(){
+  var root=document.documentElement;
   var items=document.querySelectorAll('.reveal');
-  if(!('IntersectionObserver' in window)){items.forEach(function(el){el.classList.add('show')});return}
-  var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -35px'});
-  items.forEach(function(el){io.observe(el)});
-  window.setTimeout(function(){items.forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight*1.15)el.classList.add('show')})},500);
+  var each=function(list,callback){
+    for(var i=0;i<list.length;i+=1){callback(list[i],i)}
+  };
+  var showVisible=function(){
+    var viewportHeight=window.innerHeight||document.documentElement.clientHeight;
+    each(items,function(el){
+      var rect=el.getBoundingClientRect();
+      if(rect.top<viewportHeight*1.12&&rect.bottom>-40){el.classList.add('show')}
+    });
+  };
+
+  root.classList.add('force-motion');
+
+  if(!('IntersectionObserver' in window)){
+    showVisible();
+    window.addEventListener('scroll',showVisible,{passive:true});
+    window.addEventListener('resize',showVisible);
+    return;
+  }
+
+  var io=new IntersectionObserver(function(entries){
+    each(entries,function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('show');
+        io.unobserve(entry.target);
+      }
+    });
+  },{threshold:.05,rootMargin:'0px 0px -10px 0px'});
+
+  each(items,function(el){io.observe(el)});
+  window.requestAnimationFrame(showVisible);
+  window.setTimeout(showVisible,350);
+  window.addEventListener('pageshow',showVisible);
 })();
 </script>
 </body>
