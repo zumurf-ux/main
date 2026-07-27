@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#173e36">
+  <meta name="robots" content="index, follow">
+  <meta
+    name="description"
+    content="인건비서 앱의 개인정보처리방침입니다. 수집 항목, 이용 목적, 보관 기간, 이용자 권리를 안내합니다."
+  >
+  <title>인건비서 개인정보처리방침</title>
+  <style>
+    :root {
+      --page: #f3f6f2;
+      --surface: #ffffff;
+      --ink: #1b2522;
+      --muted: #61706b;
+      --line: #dce5e1;
+      --brand: #173e36;
+      --brand-soft: #e8f1ed;
+      --accent: #d96c3b;
+      --shadow: 0 18px 50px rgba(23, 62, 54, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top right, rgba(217, 108, 59, 0.09), transparent 28rem),
+        var(--page);
+      color: var(--ink);
+      font-family:
+        Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic",
+        system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      word-break: keep-all;
+    }
+
+    a {
+      color: var(--brand);
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      color: var(--accent);
+    }
+
+    .wrap {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 64px 0 32px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px;
+      color: var(--brand);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .eyebrow::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      content: "";
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--brand);
+      font-size: clamp(34px, 7vw, 56px);
+      line-height: 1.16;
+      letter-spacing: -0.045em;
+    }
+
+    .lead {
+      max-width: 700px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .date {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 0 0 26px;
+    }
+
+    .summary-item {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--brand);
+      font-size: 16px;
+    }
+
+    .summary-item span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      padding-bottom: 64px;
+    }
+
+    article {
+      padding: clamp(24px, 5vw, 52px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    section + section {
+      margin-top: 44px;
+      padding-top: 44px;
+      border-top: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      color: var(--brand);
+      font-size: 24px;
+      line-height: 1.35;
+      letter-spacing: -0.025em;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      color: var(--ink);
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    p + p {
+      margin-top: 12px;
+    }
+
+    ul {
+      margin: 12px 0 0;
+      padding-left: 22px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .table-wrap {
+      margin-top: 18px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    th,
+    td {
+      min-width: 150px;
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-weight: 800;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .notice {
+      margin-top: 18px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent);
+      border-radius: 4px 14px 14px 4px;
+      background: #fff7f2;
+    }
+
+    .notice strong {
+      color: #8f3f1f;
+    }
+
+    .contact {
+      padding: 22px;
+      border-radius: 16px;
+      background: var(--brand);
+      color: #ffffff;
+    }
+
+    .contact a {
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    footer {
+      padding: 0 0 54px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    @media (max-width: 720px) {
+      header {
+        padding-top: 44px;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-item {
+        padding: 18px 20px;
+      }
+
+      article {
+        border-radius: 18px;
+      }
+
+      section + section {
+        margin-top: 34px;
+        padding-top: 34px;
+      }
+
+      h2 {
+        font-size: 21px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      header {
+        padding-top: 24px;
+      }
+
+      .summary-item,
+      article {
+        box-shadow: none;
+      }
+
+      footer {
+        padding-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <p class="eyebrow">INGUNBISEO · PRIVACY</p>
+    <h1>인건비서<br>개인정보처리방침</h1>
+    <p class="lead">
+      디자인하는삼촌(이하 “운영자”)은 인건비서 앱 이용자의 개인정보를 중요하게 생각하며,
+      다음과 같이 개인정보의 처리 기준과 보호 조치를 안내합니다.
+    </p>
+    <p class="date">시행일: 2026년 7월 27일 · 최종 수정일: 2026년 7월 27일</p>
+  </header>
+
+  <main class="wrap">
+    <div class="summary" aria-label="개인정보 처리 핵심 요약">
+      <div class="summary-item">
+        <strong>광고·분석 도구 없음</strong>
+        <span>광고 SDK와 이용행태 분석 SDK를 사용하지 않습니다.</span>
+      </div>
+      <div class="summary-item">
+        <strong>업무자료는 기기 저장</strong>
+        <span>직원·근무·급여 자료는 라이선스 서버로 전송하지 않습니다.</span>
+      </div>
+      <div class="summary-item">
+        <strong>최소한의 라이선스 확인</strong>
+        <span>정상 이용 확인에 필요한 키와 기기 식별정보만 서버로 전송합니다.</span>
+      </div>
+    </div>
+
+    <article>
+      <section aria-labelledby="purpose">
+        <h2 id="purpose">1. 개인정보의 처리 목적</h2>
+        <p>운영자는 다음 목적 범위에서만 개인정보를 처리합니다.</p>
+        <ul>
+          <li>라이선스 발급, 활성화, 유효성 확인 및 1대 1기기 인증 유지</li>
+          <li>부정 이용과 동일 라이선스의 무단 중복 사용 방지</li>
+          <li>라이선스 기기 변경, 오류 문의 및 고객지원 처리</li>
+          <li>관련 법령에 따른 거래 기록 보존 및 분쟁 대응</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="items">
+        <h2 id="items">2. 처리하는 개인정보 항목</h2>
+
+        <h3>앱에서 라이선스 서버로 전송하는 정보</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">항목</th>
+                <th scope="col">처리 시점</th>
+                <th scope="col">이용 목적</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>라이선스 키</td>
+                <td>최초 인증 및 하루 첫 실행 시 1회 확인</td>
+                <td>라이선스 식별과 상태 확인</td>
+              </tr>
+              <tr>
+                <td>기기 식별자(Android ID)</td>
+                <td>최초 인증 및 라이선스 확인</td>
+                <td>라이선스와 사용 기기의 연결 및 중복 사용 방지</td>
+              </tr>
+              <tr>
+                <td>앱 식별정보(앱 ID·앱 이름)</td>
+                <td>라이선스 확인 요청 시</td>
+                <td>라이선스가 발급된 앱과 현재 앱의 일치 여부 확인</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>라이선스 발급 또는 고객지원 과정에서 제공받을 수 있는 정보</h3>
+        <p>
+          이름, 연락처, 네이버 ID, 주문번호, 문의 내용과 처리 메모를 이용자가 직접 제공하거나
+          주문 확인에 필요한 경우 처리할 수 있습니다. 해당 정보는 앱이 자동으로 수집하지 않습니다.
+        </p>
+
+        <h3>기기에만 저장되는 업무자료</h3>
+        <p>
+          직원 이름과 직무, 근무일정, 출퇴근 및 근무확인 기록, 급여·수당 정보, 메모, 앱 설정,
+          이용자가 만든 백업 파일은 이용자의 기기 또는 이용자가 직접 선택한 저장 위치에 보관됩니다.
+          이 자료는 운영자의 라이선스 서버로 전송되지 않습니다.
+        </p>
+
+        <div class="notice">
+          <strong>수집하지 않는 정보:</strong>
+          연락처 주소록, 사진·동영상, 정확한 위치, 광고 식별자, 결제카드 정보는 앱에서 수집하지 않습니다.
+        </div>
+      </section>
+
+      <section aria-labelledby="method">
+        <h2 id="method">3. 처리 방법 및 보유 기간</h2>
+        <ul>
+          <li>앱과 라이선스 서버 사이의 통신은 HTTPS로 암호화됩니다.</li>
+          <li>라이선스 키, 기기 식별자, 활성화 일시 및 최근 확인 일시는 라이선스가 유효한 동안 보관합니다.</li>
+          <li>라이선스 발급·고객지원 정보는 라이선스 관리와 지원에 필요한 동안 보관한 뒤 지체 없이 삭제합니다.</li>
+          <li>관련 법령에서 일정 기간 보관을 요구하는 거래·분쟁 기록은 해당 법정 기간 동안 별도로 보관할 수 있습니다.</li>
+          <li>보유 목적이 달성되거나 확인된 삭제 요청을 받은 정보는 복구하기 어려운 방법으로 삭제합니다.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="sharing">
+        <h2 id="sharing">4. 제3자 제공 및 외부 서비스 이용</h2>
+        <p>
+          운영자는 이용자의 개인정보를 판매하지 않으며, 맞춤형 광고 목적으로 제3자와 공유하지 않습니다.
+          다만 법령에 근거가 있거나 이용자의 별도 동의를 받은 경우에는 예외로 합니다.
+        </p>
+        <p>
+          라이선스 인증 데이터베이스와 서버 기능 운영을 위해
+          <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Supabase</a>
+          인프라를 사용합니다. Supabase는 서비스 제공에 필요한 범위에서 데이터를 기술적으로 처리할 수 있으며,
+          운영자는 접근 권한을 제한하고 필요한 보호 조치를 적용합니다.
+        </p>
+      </section>
+
+      <section aria-labelledby="permissions">
+        <h2 id="permissions">5. 앱 권한 안내</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">권한</th>
+                <th scope="col">사용 목적</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>인터넷</td>
+                <td>라이선스 활성화와 유효성 확인</td>
+              </tr>
+              <tr>
+                <td>알림</td>
+                <td>직원별 근무확인 완료 알림 제공</td>
+              </tr>
+              <tr>
+                <td>정확한 알람</td>
+                <td>설정된 퇴근시간에 맞춘 근무확인 알림 예약</td>
+              </tr>
+              <tr>
+                <td>부팅 완료 수신</td>
+                <td>기기 재시작 후 사용자가 설정한 알림 다시 예약</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="notice">
+          알림 관련 권한은 개인정보 수집을 위한 권한이 아니며, 알림 기능 제공에만 사용됩니다.
+        </p>
+      </section>
+
+      <section aria-labelledby="rights">
+        <h2 id="rights">6. 이용자의 권리와 행사 방법</h2>
+        <p>
+          이용자는 본인 확인 후 운영자에게 자신의 라이선스 관련 개인정보에 대한 열람, 정정, 삭제,
+          처리정지 또는 기기 연결 초기화를 요청할 수 있습니다. 다만 법령상 보관 의무가 있거나
+          라이선스 부정 사용 방지를 위해 필요한 범위에서는 요청 처리가 제한될 수 있습니다.
+        </p>
+        <p>
+          앱을 삭제하면 기기에 저장된 앱 데이터가 함께 삭제될 수 있습니다. 이용자가 별도로 저장한
+          백업 파일은 앱 삭제로 자동 삭제되지 않을 수 있으므로 직접 관리해야 합니다.
+        </p>
+      </section>
+
+      <section aria-labelledby="security">
+        <h2 id="security">7. 개인정보 보호 조치</h2>
+        <ul>
+          <li>전송 구간 암호화(HTTPS)</li>
+          <li>관리자 인증과 데이터 접근 권한 제한</li>
+          <li>필요 최소한의 라이선스 정보만 처리</li>
+          <li>개인정보 취급자와 관리 기능에 대한 접근 통제</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="children">
+        <h2 id="children">8. 아동의 개인정보</h2>
+        <p>
+          인건비서는 사업장의 근무·인건비 관리를 위한 도구이며 만 14세 미만 아동을 대상으로 제공되지 않습니다.
+          운영자가 만 14세 미만 아동의 개인정보가 동의 없이 처리된 사실을 알게 된 경우 지체 없이 필요한 조치를 취합니다.
+        </p>
+      </section>
+
+      <section aria-labelledby="changes">
+        <h2 id="changes">9. 개인정보처리방침의 변경</h2>
+        <p>
+          법령, 서비스 또는 개인정보 처리 방식이 변경되는 경우 이 방침을 수정할 수 있습니다.
+          중요한 변경이 있을 때에는 시행 전에 이 페이지 또는 앱 내 안내를 통해 알립니다.
+        </p>
+      </section>
+
+      <section aria-labelledby="contact">
+        <h2 id="contact">10. 개인정보 문의</h2>
+        <div class="contact">
+          <p><strong>운영자:</strong> 디자인하는삼촌</p>
+          <p><strong>서비스:</strong> 인건비서</p>
+          <p>
+            <strong>이메일:</strong>
+            <a href="mailto:zumurf@gmail.com">zumurf@gmail.com</a>
+          </p>
+          <p>개인정보 또는 라이선스 기기 연결과 관련한 문의는 위 이메일로 보내주시기 바랍니다.</p>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="wrap">
+    <p>© 2026 디자인하는삼촌. 인건비서 개인정보처리방침.</p>
+  </footer>
+</body>
+</html>
